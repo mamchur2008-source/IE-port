@@ -32,11 +32,8 @@ jobs:
       - name: Collect errors
         if: always()
         run: |
-          grep -E '\.java:[0-9]+: error' build.log | sed -E 's|^.*/ie/||' > errors.txt || true
-          echo "errors: $(wc -l < errors.txt)" | tee summary.txt
-          grep -E '\.java:[0-9]+: error' build.log | sed -E 's|^.*/ie/||; s|:[0-9]+: error:.*||' | sort | uniq -c | sort -rn | head -60 >> summary.txt || true
-          cat summary.txt
-          grep -vE '\.java:[0-9]+: error' build.log | grep -E 'FAILED|What went wrong|Could not|error:' | head -40 > other-errors.txt || true
+          python3 scripts/summarize.py build.log
+          grep -vE '\.java:[0-9]+: (error|warning)' build.log | grep -E 'FAILED|What went wrong|Could not|error:' | head -40 > other-errors.txt || true
 
       - uses: actions/upload-artifact@v4
         if: always()

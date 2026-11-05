@@ -1,0 +1,2631 @@
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/ApiUtils.java b/src/api/java/blusunrize/immersiveengineering/api/ApiUtils.java
+index 5d1e04b..b9978e6 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/ApiUtils.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/ApiUtils.java
+@@ -81,13 +81,13 @@ public class ApiUtils
+ 
+ 	public static void addFutureServerTask(Level world, Runnable task, boolean forceFuture)
+ 	{
+-		LogicalSide side = world.isClientSide?LogicalSide.CLIENT: LogicalSide.SERVER;
++		LogicalSide side = world.isClientSide()?LogicalSide.CLIENT: LogicalSide.SERVER;
+ 		//TODO this sometimes causes NPEs?
+ 		BlockableEventLoop<? super TickTask> tmp = LogicalSidedProvider.WORKQUEUE.get(side);
+ 		if(forceFuture)
+ 		{
+ 			int tick;
+-			if(world.isClientSide)
++			if(world.isClientSide())
+ 				tick = 0;
+ 			else
+ 				tick = ((MinecraftServer)tmp).getTickCount();
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/ComparableItemStack.java b/src/api/java/blusunrize/immersiveengineering/api/ComparableItemStack.java
+index 9b9da06..cb9a04e 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/ComparableItemStack.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/ComparableItemStack.java
+@@ -94,7 +94,7 @@ public class ComparableItemStack
+ 		ComparableItemStack comp = new ComparableItemStack(
+ 				ItemStack.parse(provider, nbt.getCompound("stack")).orElseThrow(), false
+ 		);
+-		comp.compareComponents = nbt.getBoolean("useNBT");
++		comp.compareComponents = nbt.getBooleanOr("useNBT", false);
+ 		return comp;
+ 	}
+ }
+\ No newline at end of file
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/TargetingInfo.java b/src/api/java/blusunrize/immersiveengineering/api/TargetingInfo.java
+index aad83ec..83f20b9 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/TargetingInfo.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/TargetingInfo.java
+@@ -47,6 +47,6 @@ public class TargetingInfo
+ 
+ 	public static TargetingInfo readFromNBT(CompoundTag tag)
+ 	{
+-		return new TargetingInfo(Direction.from3DDataValue(tag.getInt("side")), tag.getFloat("hitX"), tag.getFloat("hitY"), tag.getFloat("hitZ"));
++		return new TargetingInfo(Direction.from3DDataValue(tag.getIntOr("side", 0)), tag.getFloat("hitX"), tag.getFloat("hitY"), tag.getFloat("hitZ"));
+ 	}
+ }
+\ No newline at end of file
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/crafting/StackWithChance.java b/src/api/java/blusunrize/immersiveengineering/api/crafting/StackWithChance.java
+index 8b40d86..7d97d32 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/crafting/StackWithChance.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/crafting/StackWithChance.java
+@@ -72,7 +72,7 @@ public record StackWithChance(TagOutput stack, float chance, List<ICondition> co
+ 		Preconditions.checkArgument(compoundNBT.contains("chance"));
+ 		Preconditions.checkArgument(compoundNBT.contains("stack"));
+ 		final ItemStack stack = ItemStack.parse(provider, compoundNBT.getCompound("stack")).orElseThrow();
+-		final float chance = compoundNBT.getFloat("chance");
++		final float chance = compoundNBT.getFloatOr("chance", 0F);
+ 		return new StackWithChance(stack, chance);
+ 	}
+ 
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/energy/AveragingEnergyStorage.java b/src/api/java/blusunrize/immersiveengineering/api/energy/AveragingEnergyStorage.java
+index 1f418fa..994db06 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/energy/AveragingEnergyStorage.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/energy/AveragingEnergyStorage.java
+@@ -82,8 +82,8 @@ public class AveragingEnergyStorage extends MutableEnergyStorage
+ 	{
+ 		if(!(nbt instanceof CompoundTag compound))
+ 			return;
+-		this.energy = compound.getInt("energy");
+-		this.averageInsertion = compound.getInt("averageInsertion");
+-		this.averageExtraction = compound.getInt("averageExtraction");
++		this.energy = compound.getIntOr("energy", 0);
++		this.averageInsertion = compound.getIntOr("averageInsertion", 0);
++		this.averageExtraction = compound.getIntOr("averageExtraction", 0);
+ 	}
+ }
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/excavator/MineralVein.java b/src/api/java/blusunrize/immersiveengineering/api/excavator/MineralVein.java
+index 00824c1..015301c 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/excavator/MineralVein.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/excavator/MineralVein.java
+@@ -109,11 +109,11 @@ public class MineralVein
+ 	{
+ 		try
+ 		{
+-			ColumnPos pos = new ColumnPos(tag.getInt("x"), tag.getInt("z"));
+-			Identifier id = Identifier.parse(tag.getString("mineral"));
+-			int radius = tag.getInt("radius");
++			ColumnPos pos = new ColumnPos(tag.getIntOr("x", 0), tag.getIntOr("z", 0));
++			Identifier id = Identifier.parse(tag.getStringOr("mineral", ""));
++			int radius = tag.getIntOr("radius", 0);
+ 			MineralVein info = new MineralVein(pos, id, radius);
+-			info.depletion = tag.getInt("depletion");
++			info.depletion = tag.getIntOr("depletion", 0);
+ 			return info;
+ 		} catch(IdentifierException ex)
+ 		{
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/multiblocks/TemplateMultiblock.java b/src/api/java/blusunrize/immersiveengineering/api/multiblocks/TemplateMultiblock.java
+index 9cf54a2..a75c2df 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/multiblocks/TemplateMultiblock.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/multiblocks/TemplateMultiblock.java
+@@ -112,7 +112,7 @@ public abstract class TemplateMultiblock implements IMultiblock
+ 		else
+ 		{
+ 			//noinspection ConstantValue: We pass null during datagen, but should not do so anywhere else
+-			if(!DatagenModLoader.isRunningDataGen()&&(level==null||!level.isClientSide))
++			if(!DatagenModLoader.isRunningDataGen()&&(level==null||!level.isClientSide()))
+ 				throw new RuntimeException("Unexpected level parameter: "+level);
+ 			newTemplate = SYNCED_CLIENT_TEMPLATES.get(loc);
+ 		}
+@@ -183,7 +183,7 @@ public abstract class TemplateMultiblock implements IMultiblock
+ 				if(!BlockMatcher.matches(expected, inWorld, world, here, additionalPredicates).isAllow())
+ 					continue mirrorLoop;
+ 			}
+-			if(!world.isClientSide)
++			if(!world.isClientSide())
+ 				form(world, origin, rot, mirror, side);
+ 			return true;
+ 		}
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/component/RedstoneControl.java b/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/component/RedstoneControl.java
+index 4776d1c..30de1e7 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/component/RedstoneControl.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/component/RedstoneControl.java
+@@ -126,7 +126,7 @@ public class RedstoneControl<S> implements IMultiblockComponent<RSState>, StateW
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			rsEnablesMachine = nbt.getBoolean("rsEnablesMachine");
++			rsEnablesMachine = nbt.getBooleanOr("rsEnablesMachine", false);
+ 		}
+ 
+ 		public ComputerControlState getComputerControlState()
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/registry/MultiblockPartBlock.java b/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/registry/MultiblockPartBlock.java
+index 6c41fd5..7abfbf8 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/registry/MultiblockPartBlock.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/multiblocks/blocks/registry/MultiblockPartBlock.java
+@@ -99,9 +99,9 @@ public class MultiblockPartBlock<State extends IMultiblockState> extends Block i
+ 	{
+ 		if(state.getValue(IEProperties.MULTIBLOCKSLAVE))
+ 			return null;
+-		if(level.isClientSide&&needsClientTicker)
++		if(level.isClientSide()&&needsClientTicker)
+ 			return createTickerHelper(actual, ($1, $2, $3, blockEntity) -> blockEntity.getHelper().tickClient());
+-		if(!level.isClientSide&&needsServerTicker)
++		if(!level.isClientSide()&&needsServerTicker)
+ 			return createTickerHelper(actual, ($1, $2, $3, blockEntity) -> blockEntity.getHelper().tickServer());
+ 		return null;
+ 	}
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/shader/CapabilityShader.java b/src/api/java/blusunrize/immersiveengineering/api/shader/CapabilityShader.java
+index ea76973..987c920 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/shader/CapabilityShader.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/shader/CapabilityShader.java
+@@ -154,9 +154,9 @@ public class CapabilityShader
+ 		@Override
+ 		public ShaderWrapper_Direct read(IAttachmentHolder holder, CompoundTag tag, Provider provider)
+ 		{
+-			ShaderWrapper_Direct wrapper = new ShaderWrapper_Direct(Identifier.parse(tag.getString("IE:ShaderType")));
++			ShaderWrapper_Direct wrapper = new ShaderWrapper_Direct(Identifier.parse(tag.getStringOr("IE:ShaderType", "")));
+ 			if(!tag.contains("IE:NoShader"))
+-				wrapper.setShader(Identifier.parse(tag.getString("IE:Shader")));
++				wrapper.setShader(Identifier.parse(tag.getStringOr("IE:Shader", "")));
+ 			return wrapper;
+ 		}
+ 	}
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/tool/BulletHandler.java b/src/api/java/blusunrize/immersiveengineering/api/tool/BulletHandler.java
+index 1c3a075..aab79e3 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/tool/BulletHandler.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/tool/BulletHandler.java
+@@ -222,7 +222,7 @@ public class BulletHandler
+ 				return;
+ 			EntityHitResult target = (EntityHitResult)rtr;
+ 			Entity hitEntity = target.getEntity();
+-			if(!world.isClientSide&&hitEntity!=null&&damageSourceGetter!=null)
++			if(!world.isClientSide()&&hitEntity!=null&&damageSourceGetter!=null)
+ 			{
+ 				Entity shooter = null;
+ 				if(shooterUUID!=null&&world instanceof ServerLevel serverLevel)
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/tool/LogicCircuitHandler.java b/src/api/java/blusunrize/immersiveengineering/api/tool/LogicCircuitHandler.java
+index 0c04361..69a2c0b 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/tool/LogicCircuitHandler.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/tool/LogicCircuitHandler.java
+@@ -189,12 +189,12 @@ public class LogicCircuitHandler
+ 
+ 		public static LogicCircuitInstruction deserialize(CompoundTag nbt)
+ 		{
+-			LogicCircuitOperator operator = LogicCircuitOperator.valueOf(nbt.getString("operator"));
+-			LogicCircuitRegister output = LogicCircuitRegister.valueOf(nbt.getString("output"));
+-			ListTag inputList = nbt.getList("inputs", Tag.TAG_STRING);
++			LogicCircuitOperator operator = LogicCircuitOperator.valueOf(nbt.getStringOr("operator", ""));
++			LogicCircuitRegister output = LogicCircuitRegister.valueOf(nbt.getStringOr("output", ""));
++			ListTag inputList = nbt.getListOrEmpty("inputs");
+ 			LogicCircuitRegister[] inputs = new LogicCircuitRegister[inputList.size()];
+ 			for(int i = 0; i < inputs.length; i++)
+-				inputs[i] = LogicCircuitRegister.valueOf(inputList.getString(i));
++				inputs[i] = LogicCircuitRegister.valueOf(inputList.getStringOr(i, ""));
+ 			return new LogicCircuitInstruction(operator, output, inputs);
+ 		}
+ 
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/ConveyorHandler.java b/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/ConveyorHandler.java
+index d78bfd7..94a1c4a 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/ConveyorHandler.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/ConveyorHandler.java
+@@ -58,7 +58,7 @@ public class ConveyorHandler
+ 	{
+ 		MutableLong currentTick;
+ 		IntSet entitiesHandledInCurrentTick;
+-		if(e.level().isClientSide)
++		if(e.level().isClientSide())
+ 		{
+ 			currentTick = currentTickClient;
+ 			entitiesHandledInCurrentTick = entitiesHandledInCurrentTickClient;
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/IConveyorBelt.java b/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/IConveyorBelt.java
+index 9cc73b5..a77d7c8 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/IConveyorBelt.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/tool/conveyor/IConveyorBelt.java
+@@ -247,7 +247,7 @@ public interface IConveyorBelt
+ 					if(item.getAge() > item.lifespan-60*20&&!outputBlocked)
+ 						access.setAge(item, item.lifespan-60*20);
+ 				}
+-				else if(!w.isClientSide)
++				else if(!w.isClientSide())
+ 					handleInsertion(item, conveyorDirection, distX, distZ);
+ 			}
+ 		}
+@@ -265,7 +265,7 @@ public interface IConveyorBelt
+ 		{
+ 			LevelChunk chunk = SafeChunkUtils.getSafeChunk(level, pos);
+ 			// Do not export entities into non-ticking chunks, where they would pile up at the boundary
+-			if(chunk==null||(!level.isClientSide&&!chunk.getFullStatus().isOrAfter(FullChunkStatus.ENTITY_TICKING)))
++			if(chunk==null||(!level.isClientSide()&&!chunk.getFullStatus().isOrAfter(FullChunkStatus.ENTITY_TICKING)))
+ 				return true;
+ 			BlockEntity outputTile = chunk.getBlockEntity(pos);
+ 			if(outputTile instanceof IConveyorBlockEntity<?> convOut)
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/wires/Connection.java b/src/api/java/blusunrize/immersiveengineering/api/wires/Connection.java
+index 03302f7..896fe66 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/wires/Connection.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/wires/Connection.java
+@@ -101,9 +101,9 @@ public class Connection
+ 	public Connection(CompoundTag nbt)
+ 	{
+ 		this(
+-				WireType.getValue(nbt.getString("type")),
+-				new ConnectionPoint(nbt.getCompound("endA")),
+-				new ConnectionPoint(nbt.getCompound("endB")),
++				WireType.getValue(nbt.getStringOr("type", "")),
++				new ConnectionPoint(nbt.getCompoundOrEmpty("endA")),
++				new ConnectionPoint(nbt.getCompoundOrEmpty("endB")),
+ 				WireUtils.loadVec3(nbt.get("endAOffset")),
+ 				WireUtils.loadVec3(nbt.get("endBOffset")),
+ 				nbt.getBoolean("internal")
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/wires/GlobalWireNetwork.java b/src/api/java/blusunrize/immersiveengineering/api/wires/GlobalWireNetwork.java
+index 02e5993..773a829 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/wires/GlobalWireNetwork.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/wires/GlobalWireNetwork.java
+@@ -224,7 +224,7 @@ public class GlobalWireNetwork extends SavedData implements IWorldTickable
+ 		localNetSet.forEach(LocalWireNetwork::setInvalid);
+ 		localNetSet.clear();
+ 		localNetsByPos.clear();
+-		ListTag locals = nbt.getList("locals", Tag.TAG_COMPOUND);
++		ListTag locals = nbt.getListOrEmpty("locals");
+ 		for(Tag b : locals)
+ 		{
+ 			CompoundTag subnet = (CompoundTag)b;
+@@ -364,10 +364,10 @@ public class GlobalWireNetwork extends SavedData implements IWorldTickable
+ 				WireLogger.logger.info("Loading connector {} at {}", iic, iic.getPosition());
+ 				if(validating)
+ 					WireLogger.logger.error("Adding a connector during validation!");
+-				onConnectorLoad(iic, level.isClientSide);
++				onConnectorLoad(iic, level.isClientSide());
+ 				ApiUtils.addFutureServerTask(level, () -> initializeConnectionsOn(iic, level), true);
+ 				validateNextTick = true;
+-				if(level.isClientSide)
++				if(level.isClientSide())
+ 					updateModelData(iic, level);
+ 			}
+ 			else
+@@ -462,7 +462,7 @@ public class GlobalWireNetwork extends SavedData implements IWorldTickable
+ 
+ 	private void validate(Level world)
+ 	{
+-		if(world.isClientSide||!VALIDATE_CONNECTIONS.get().getAsBoolean())
++		if(world.isClientSide()||!VALIDATE_CONNECTIONS.get().getAsBoolean())
+ 			return;
+ 		else
+ 			WireLogger.logger.info("Validating wire network...");
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/wires/IConnectionTemplate.java b/src/api/java/blusunrize/immersiveengineering/api/wires/IConnectionTemplate.java
+index 58b2651..02d8782 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/wires/IConnectionTemplate.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/wires/IConnectionTemplate.java
+@@ -27,9 +27,9 @@ public interface IConnectionTemplate
+ 		public TemplateConnection(CompoundTag nbt)
+ 		{
+ 			this(
+-					new ConnectionPoint(nbt.getCompound("endA")),
+-					new ConnectionPoint(nbt.getCompound("endB")),
+-					WireType.getValue(nbt.getString("type"))
++					new ConnectionPoint(nbt.getCompoundOrEmpty("endA")),
++					new ConnectionPoint(nbt.getCompoundOrEmpty("endB")),
++					WireType.getValue(nbt.getStringOr("type", ""))
+ 			);
+ 		}
+ 
+diff --git a/src/api/java/blusunrize/immersiveengineering/api/wires/LocalWireNetwork.java b/src/api/java/blusunrize/immersiveengineering/api/wires/LocalWireNetwork.java
+index 415db81..0daa9df 100644
+--- a/src/api/java/blusunrize/immersiveengineering/api/wires/LocalWireNetwork.java
++++ b/src/api/java/blusunrize/immersiveengineering/api/wires/LocalWireNetwork.java
+@@ -44,17 +44,17 @@ public class LocalWireNetwork implements IWorldTickable
+ 	public LocalWireNetwork(CompoundTag subnet, GlobalWireNetwork globalNet)
+ 	{
+ 		this(globalNet);
+-		ListTag proxies = subnet.getList("proxies", Tag.TAG_COMPOUND);
++		ListTag proxies = subnet.getListOrEmpty("proxies");
+ 		for(Tag b : proxies)
+ 		{
+-			IImmersiveConnectable proxy = proxyProvider.fromNBT(((CompoundTag)b).getCompound("proxy"));
+-			for(Tag p : ((CompoundTag)b).getList("points", Tag.TAG_COMPOUND))
++			IImmersiveConnectable proxy = proxyProvider.fromNBT(((CompoundTag)b).getCompoundOrEmpty("proxy"));
++			for(Tag p : ((CompoundTag)b).getListOrEmpty("points"))
+ 			{
+ 				ConnectionPoint point = new ConnectionPoint((CompoundTag)p);
+ 				addConnector(point, proxy, globalNet);
+ 			}
+ 		}
+-		ListTag wires = subnet.getList("wires", Tag.TAG_COMPOUND);
++		ListTag wires = subnet.getListOrEmpty("wires");
+ 		for(Tag b : wires)
+ 		{
+ 			Connection wire = new Connection((CompoundTag)b);
+diff --git a/src/main/java/blusunrize/immersiveengineering/ImmersiveEngineering.java b/src/main/java/blusunrize/immersiveengineering/ImmersiveEngineering.java
+index 2c3b835..8147455 100644
+--- a/src/main/java/blusunrize/immersiveengineering/ImmersiveEngineering.java
++++ b/src/main/java/blusunrize/immersiveengineering/ImmersiveEngineering.java
+@@ -292,7 +292,7 @@ public class ImmersiveEngineering
+ 		{
+ 			//TODO hardcoding DimensionType.OVERWORLD seems hacky/broken
+ 			ServerLevel world = event.getServer().getLevel(Level.OVERWORLD);
+-			if(!world.isClientSide)
++			if(!world.isClientSide())
+ 			{
+ 				IESaveData worldData = world.getDataStorage().computeIfAbsent(
+ 						new Factory<>(IESaveData::new, IESaveData::new), IESaveData.dataName
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlock.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlock.java
+index a42b5f0..8dfb2ff 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlock.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlock.java
+@@ -158,7 +158,7 @@ public class IEBaseBlock extends Block implements IIEBlock, SimpleWaterloggedBlo
+ 	@SuppressWarnings("deprecation")
+ 	public boolean triggerEvent(BlockState state, Level worldIn, BlockPos pos, int eventID, int eventParam)
+ 	{
+-		if(worldIn.isClientSide&&eventID==255)
++		if(worldIn.isClientSide()&&eventID==255)
+ 		{
+ 			worldIn.sendBlockUpdated(pos, state, state, 3);
+ 			return true;
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlockEntity.java
+index 1a800b6..682e765 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/IEBaseBlockEntity.java
+@@ -329,7 +329,7 @@ public abstract class IEBaseBlockEntity extends BlockEntity implements Blockstat
+ 
+ 	protected int getRSInput(Direction from)
+ 	{
+-		if(level.isClientSide||!redstoneBySide.containsKey(from))
++		if(level.isClientSide()||!redstoneBySide.containsKey(from))
+ 			updateRSForSide(from);
+ 		return redstoneBySide.get(from);
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/IEEntityBlock.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/IEEntityBlock.java
+index f35bfa7..d978fc3 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/IEEntityBlock.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/IEEntityBlock.java
+@@ -93,7 +93,7 @@ public class IEEntityBlock<T extends BlockEntity> extends IEBaseBlock implements
+ 	public <T2 extends BlockEntity>
+ 	BlockEntityTicker<T2> getTicker(Level world, BlockState state, BlockEntityType<T2> type)
+ 	{
+-		BlockEntityTicker<T2> baseTicker = getClassData().makeBaseTicker(world.isClientSide);
++		BlockEntityTicker<T2> baseTicker = getClassData().makeBaseTicker(world.isClientSide());
+ 		if(makeEntity instanceof MultiblockBEType<?> multiBEType&&type!=multiBEType.master())
+ 			return null;
+ 		return baseTicker;
+@@ -253,7 +253,7 @@ public class IEEntityBlock<T extends BlockEntity> extends IEBaseBlock implements
+ 		if(tile instanceof IDirectionalBE&&Utils.isHammer(heldItem)&&((IDirectionalBE)tile).canHammerRotate(
+ 				side,
+ 				hit.getLocation().subtract(Vec3.atLowerCornerOf(pos)),
+-				player)&&!world.isClientSide)
++				player)&&!world.isClientSide())
+ 		{
+ 			Direction f = ((IDirectionalBE)tile).getFacing();
+ 			Direction oldF = f;
+@@ -315,7 +315,7 @@ public class IEEntityBlock<T extends BlockEntity> extends IEBaseBlock implements
+ 	@SuppressWarnings("deprecation")
+ 	public void neighborChanged(BlockState state, Level world, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving)
+ 	{
+-		if(!world.isClientSide)
++		if(!world.isClientSide())
+ 		{
+ 			BlockEntity tile = world.getBlockEntity(pos);
+ 			if(tile instanceof IEBaseBlockEntity)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/cloth/ShaderBannerBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/cloth/ShaderBannerBlockEntity.java
+index 8720e70..30df2f6 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/cloth/ShaderBannerBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/cloth/ShaderBannerBlockEntity.java
+@@ -32,7 +32,7 @@ public class ShaderBannerBlockEntity extends IEBaseBlockEntity
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		if(nbt.contains("shader", Tag.TAG_COMPOUND))
++		if(nbt.contains("shader"))
+ 			shader = ShaderWrapper_Direct.SERIALIZER.read(this, nbt.getCompound("shader"), provider);
+ 	}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/BlastFurnacePreheaterBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/BlastFurnacePreheaterBlockEntity.java
+index 25e75c7..d81ff6d 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/BlastFurnacePreheaterBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/BlastFurnacePreheaterBlockEntity.java
+@@ -131,8 +131,8 @@ public class BlastFurnacePreheaterBlockEntity extends IEBaseBlockEntity implemen
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		dummy = nbt.getInt("dummy");
+-		active = nbt.getBoolean("active");
++		dummy = nbt.getIntOr("dummy", 0);
++		active = nbt.getBooleanOr("active", false);
+ 		if(descPacket)
+ 			this.markContainingBlockForUpdate(null);
+ 		else
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CapacitorBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CapacitorBlockEntity.java
+index 8767e49..07fd31b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CapacitorBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CapacitorBlockEntity.java
+@@ -178,7 +178,7 @@ public class CapacitorBlockEntity extends IEBaseBlockEntity implements IEServerT
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		for(Direction f : DirectionUtils.VALUES)
+-			sideConfig.put(f, IOSideConfig.values()[nbt.getInt("sideConfig_"+f.ordinal())]);
++			sideConfig.put(f, IOSideConfig.values()[nbt.getIntOr("sideConfig_"+f.ordinal(), 0)]);
+ 		if(energyStorage instanceof EnergyStorage forgeStorage)
+ 			EnergyHelper.deserializeFrom(forgeStorage, nbt, provider);
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ChargingStationBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ChargingStationBlockEntity.java
+index 4d0a221..fd7070a 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ChargingStationBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ChargingStationBlockEntity.java
+@@ -153,7 +153,7 @@ public class ChargingStationBlockEntity extends IEBaseBlockEntity implements IEC
+ 	{
+ 		EnergyHelper.deserializeFrom(energyStorage, nbt, provider);
+ 		inventory.set(0, ItemStack.parseOptional(provider, nbt.getCompound("inventory")));
+-		charging = nbt.getBoolean("charging");
++		charging = nbt.getBooleanOr("charging", false);
+ 	}
+ 
+ 	@Override
+@@ -257,16 +257,16 @@ public class ChargingStationBlockEntity extends IEBaseBlockEntity implements IEC
+ 			player.setItemInHand(hand, stored);
+ 			setChanged();
+ 			this.markContainingBlockForUpdate(null);
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		else if(!inventory.get(0).isEmpty())
+ 		{
+-			if(!level.isClientSide)
++			if(!level.isClientSide())
+ 				player.spawnAtLocation(inventory.get(0).copy(), .5f);
+ 			inventory.set(0, ItemStack.EMPTY);
+ 			setChanged();
+ 			this.markContainingBlockForUpdate(null);
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ClocheBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ClocheBlockEntity.java
+index fbb8348..2f1d6da 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ClocheBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ClocheBlockEntity.java
+@@ -298,25 +298,25 @@ public class ClocheBlockEntity extends IEBaseBlockEntity implements IEServerTick
+ 	@Override
+ 	public void receiveMessageFromServer(CompoundTag message)
+ 	{
+-		renderGrowth = message.getFloat("growth");
+-		renderActive = message.getBoolean("renderActive");
++		renderGrowth = message.getFloatOr("growth", 0F);
++		renderActive = message.getBooleanOr("renderActive", false);
+ 	}
+ 
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		final ItemStack oldSoil = inventory.get(SLOT_SOIL);
+-		dummy = nbt.getInt("dummy");
++		dummy = nbt.getIntOr("dummy", 0);
+ 		// loadAllItems skips empty items, so if a slot was emptied it won't be properly synced without the fill call
+ 		Collections.fill(inventory, ItemStack.EMPTY);
+ 		ContainerHelper.loadAllItems(nbt, inventory, provider);
+-		fertilizerAmount = nbt.getInt("fertilizerAmount");
+-		fertilizerMod = nbt.getFloat("fertilizerMod");
++		fertilizerAmount = nbt.getIntOr("fertilizerAmount", 0);
++		fertilizerMod = nbt.getFloatOr("fertilizerMod", 0F);
+ 		tank.readFromNBT(provider, nbt.getCompound("tank"));
+ 		if(!descPacket)
+ 		{
+ 			EnergyHelper.deserializeFrom(energyStorage, nbt, provider);
+-			growth = nbt.getFloat("growth");
++			growth = nbt.getFloatOr("growth", 0F);
+ 		}
+ 		renderBB = null;
+ 		if(descPacket&&level!=null&&!ItemStack.matches(oldSoil, inventory.get(SLOT_SOIL)))
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorProbeBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorProbeBlockEntity.java
+index 1bae649..4d4e870 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorProbeBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorProbeBlockEntity.java
+@@ -119,7 +119,7 @@ public class ConnectorProbeBlockEntity extends ConnectorRedstoneBlockEntity
+ 	@Override
+ 	public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Vec3 hitVec)
+ 	{
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			ImmersiveEngineering.proxy.openTileScreen(Lib.GUIID_RedstoneProbe, this);
+ 		return ItemInteractionResult.SUCCESS;
+ 	}
+@@ -128,11 +128,11 @@ public class ConnectorProbeBlockEntity extends ConnectorRedstoneBlockEntity
+ 	public void receiveMessageFromClient(CompoundTag message)
+ 	{
+ 		if(message.contains("redstoneChannel"))
+-			redstoneChannel = DyeColor.byId(message.getInt("redstoneChannel"));
++			redstoneChannel = DyeColor.byId(message.getIntOr("redstoneChannel", 0));
+ 		if(message.contains("redstoneChannelSending"))
+-			redstoneChannelSending = DyeColor.byId(message.getInt("redstoneChannelSending"));
++			redstoneChannelSending = DyeColor.byId(message.getIntOr("redstoneChannelSending", 0));
+ 		if(message.contains("outputThreshold"))
+-			outputThreshold = message.getInt("outputThreshold");
++			outputThreshold = message.getIntOr("outputThreshold", 0);
+ 		updateAfterConfigure();
+ 	}
+ 
+@@ -148,8 +148,8 @@ public class ConnectorProbeBlockEntity extends ConnectorRedstoneBlockEntity
+ 	public void readCustomNBT(@Nonnull CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		super.readCustomNBT(nbt, descPacket, provider);
+-		redstoneChannelSending = DyeColor.byId(nbt.getInt("redstoneChannelSending"));
+-		outputThreshold = nbt.getInt("outputThreshold");
++		redstoneChannelSending = DyeColor.byId(nbt.getIntOr("redstoneChannelSending", 0));
++		outputThreshold = nbt.getIntOr("outputThreshold", 0);
+ 	}
+ 
+ 	@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorRedstoneBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorRedstoneBlockEntity.java
+index 6211e96..7d36d36 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorRedstoneBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ConnectorRedstoneBlockEntity.java
+@@ -104,7 +104,7 @@ public class ConnectorRedstoneBlockEntity extends ImmersiveConnectableBlockEntit
+ 	@Override
+ 	public void onChange(ConnectionPoint cp, RedstoneNetworkHandler handler)
+ 	{
+-		if(!level.isClientSide&&SafeChunkUtils.isChunkSafe(level, worldPosition))
++		if(!level.isClientSide()&&SafeChunkUtils.isChunkSafe(level, worldPosition))
+ 		{
+ 			output = handler.getValue(redstoneChannel.getId());
+ 			if(!isRemoved()&&isRSOutput())
+@@ -160,7 +160,7 @@ public class ConnectorRedstoneBlockEntity extends ImmersiveConnectableBlockEntit
+ 	@Override
+ 	public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Vec3 hitVec)
+ 	{
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			ImmersiveEngineering.proxy.openTileScreen(Lib.GUIID_RedstoneConnector, this);
+ 		return ItemInteractionResult.SUCCESS;
+ 	}
+@@ -209,9 +209,9 @@ public class ConnectorRedstoneBlockEntity extends ImmersiveConnectableBlockEntit
+ 	public void receiveMessageFromClient(CompoundTag message)
+ 	{
+ 		if(message.contains("ioMode"))
+-			ioMode = IOSideConfig.VALUES[message.getInt("ioMode")];
++			ioMode = IOSideConfig.VALUES[message.getIntOr("ioMode", 0)];
+ 		if(message.contains("redstoneChannel"))
+-			redstoneChannel = DyeColor.byId(message.getInt("redstoneChannel"));
++			redstoneChannel = DyeColor.byId(message.getIntOr("redstoneChannel", 0));
+ 		updateAfterConfigure();
+ 	}
+ 
+@@ -228,9 +228,9 @@ public class ConnectorRedstoneBlockEntity extends ImmersiveConnectableBlockEntit
+ 	public void readCustomNBT(@Nonnull CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		super.readCustomNBT(nbt, descPacket, provider);
+-		ioMode = IOSideConfig.VALUES[nbt.getInt("ioMode")];
+-		redstoneChannel = DyeColor.byId(nbt.getInt("redstoneChannel"));
+-		output = nbt.getInt("output");
++		ioMode = IOSideConfig.VALUES[nbt.getIntOr("ioMode", 0)];
++		redstoneChannel = DyeColor.byId(nbt.getIntOr("redstoneChannel", 0));
++		output = nbt.getIntOr("output", 0);
+ 	}
+ 
+ 	@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CrafterPatternInventory.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CrafterPatternInventory.java
+index 3936b31..fbd81cc 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CrafterPatternInventory.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/CrafterPatternInventory.java
+@@ -60,7 +60,7 @@ public class CrafterPatternInventory
+ 		Collections.fill(this.inv, ItemStack.EMPTY);
+ 		for(int i = 0; i < list.size(); i++)
+ 		{
+-			CompoundTag itemTag = list.getCompound(i);
++			CompoundTag itemTag = list.getCompoundOrEmpty(i);
+ 			int slot = itemTag.getByte("Slot")&255;
+ 			if(slot < NUM_SLOTS)
+ 				this.inv.set(slot, ItemStack.parseOptional(provider, itemTag));
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FeedthroughBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FeedthroughBlockEntity.java
+index 39d7a39..76b590b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FeedthroughBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FeedthroughBlockEntity.java
+@@ -92,12 +92,12 @@ public class FeedthroughBlockEntity extends ImmersiveConnectableBlockEntity impl
+ 	public void readCustomNBT(@Nonnull CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		super.readCustomNBT(nbt, descPacket, provider);
+-		reference = WireType.getValue(nbt.getString(WIRE));
+-		offset = nbt.getInt(OFFSET);
++		reference = WireType.getValue(nbt.getStringOr(WIRE, ""));
++		offset = nbt.getIntOr(OFFSET, 0);
+ 		HolderGetter<Block> lookup = this.level != null ?
+ 				this.level.holderLookup(Registries.BLOCK) :
+ 				BuiltInRegistries.BLOCK.asLookup();
+-		stateForMiddle = NbtUtils.readBlockState(lookup, nbt.getCompound(MIDDLE_STATE));
++		stateForMiddle = NbtUtils.readBlockState(lookup, nbt.getCompoundOrEmpty(MIDDLE_STATE));
+ 	}
+ 
+ 	@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FluidPipeBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FluidPipeBlockEntity.java
+index d75148c..a781b8a 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FluidPipeBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/FluidPipeBlockEntity.java
+@@ -114,7 +114,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 
+ 	public static Set<DirectionalFluidOutput> getConnectedFluidHandlers(BlockPos node, Level world)
+ 	{
+-		if(world.isClientSide)
++		if(world.isClientSide())
+ 			return ImmutableSet.of();
+ 		Set<DirectionalFluidOutput> cachedResult = indirectConnections.get(world, node);
+ 		if(cachedResult!=null)
+@@ -175,7 +175,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 	public void setRemovedIE()
+ 	{
+ 		super.setRemovedIE();
+-		if(level!=null&&!level.isClientSide)
++		if(level!=null&&!level.isClientSide())
+ 			indirectConnections.clearDimension(level);
+ 	}
+ 
+@@ -183,7 +183,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 	public void onChunkUnloaded()
+ 	{
+ 		super.onChunkUnloaded();
+-		if(level!=null&&!level.isClientSide)
++		if(level!=null&&!level.isClientSide())
+ 			indirectConnections.clearDimension(level);
+ 	}
+ 
+@@ -207,7 +207,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		int[] config = nbt.getIntArray("sideConfig");
++		int[] config = nbt.getIntArray("sideConfig").orElse(new int[0]);
+ 		for(int i = 0; i < 6; ++i)
+ 		{
+ 			Direction curDir = Direction.from3DDataValue(i);
+@@ -227,15 +227,15 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 			}
+ 		}
+ 		final Block oldCover = cover;
+-		cover = BuiltInRegistries.BLOCK.get(Identifier.parse(nbt.getString("cover")));
++		cover = BuiltInRegistries.BLOCK.get(Identifier.parse(nbt.getStringOr("cover", "")));
+ 		DyeColor oldColor = color;
+-		if(nbt.contains("color", Tag.TAG_INT))
+-			color = DyeColor.byId(nbt.getInt("color"));
++		if(nbt.contains("color"))
++			color = DyeColor.byId(nbt.getIntOr("color", 0));
+ 		else
+ 			color = null;
+ 		byte oldConns = connections;
+-		connections = nbt.getByte("connections");
+-		if(level!=null&&level.isClientSide&&(connections!=oldConns||color!=oldColor||cover!=oldCover))
++		connections = nbt.getByteOr("connections", (byte) 0);
++		if(level!=null&&level.isClientSide()&&(connections!=oldConns||color!=oldColor||cover!=oldCover))
+ 		{
+ 			BlockState state = level.getBlockState(worldPosition);
+ 			level.sendBlockUpdated(worldPosition, state, state, 3);
+@@ -328,7 +328,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 			Level world = getLevelNonnull();
+ 			world.updateNeighborsAtExceptFromFacing(worldPosition, getBlockState().getBlock(), dir);
+ 			markContainingBlockForUpdate(null);
+-			if(!world.isClientSide)
++			if(!world.isClientSide())
+ 				indirectConnections.clearDimension(world);
+ 		}
+ 	}
+@@ -491,7 +491,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 
+ 	public boolean updateConnectionByte(Direction dir)
+ 	{
+-		if(level==null||level.isClientSide||!SafeChunkUtils.isChunkSafe(level, worldPosition.relative(dir)))
++		if(level==null||level.isClientSide()||!SafeChunkUtils.isChunkSafe(level, worldPosition.relative(dir)))
+ 			return false;
+ 		final byte oldConn = connections;
+ 		int i = dir.get3DDataValue();
+@@ -684,7 +684,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 
+ 	public void dropCover(Player player)
+ 	{
+-		if(!level.isClientSide&&hasCover()&&level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS))
++		if(!level.isClientSide()&&hasCover()&&level.getGameRules().getBoolean(GameRules.RULE_DOBLOCKDROPS))
+ 		{
+ 			ItemEntity entityitem = player.drop(new ItemStack(cover), false);
+ 			if(entityitem!=null)
+@@ -697,7 +697,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 	{
+ 		if(heldItem.isEmpty()&&player.isShiftKeyDown()&&hasCover())
+ 		{
+-			if(!player.level().isClientSide)
++			if(!player.level().isClientSide())
+ 			{
+ 				dropCover(player);
+ 				this.cover = Blocks.AIR;
+@@ -705,7 +705,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 				level.blockEvent(getBlockPos(), getBlockState().getBlock(), 255, 0);
+ 				markChunkDirty();
+ 			}
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		else if(!heldItem.isEmpty()&&!player.isShiftKeyDown())
+ 			return setColorOrCoverFrom(heldItem, player);
+@@ -717,14 +717,14 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 		DyeColor heldDye = Utils.getDye(heldItem);
+ 		if(heldDye!=null)
+ 		{
+-			if(!player.level().isClientSide)
++			if(!player.level().isClientSide())
+ 			{
+ 				color = heldDye;
+ 				markChunkDirty();
+ 				markContainingBlockForUpdate(null);
+ 				level.blockEvent(getBlockPos(), getBlockState().getBlock(), 255, 0);
+ 			}
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		Block heldBlock = Block.byItem(heldItem.getItem());
+ 		if(heldBlock==Blocks.AIR)
+@@ -732,7 +732,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 		for(Predicate<Block> func : validPipeCovers)
+ 			if(func.test(heldBlock)&&this.cover!=heldBlock)
+ 			{
+-				if(!player.level().isClientSide)
++				if(!player.level().isClientSide())
+ 				{
+ 					dropCover(player);
+ 					this.cover = heldBlock;
+@@ -742,7 +742,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 					this.markContainingBlockForUpdate(null);
+ 					level.blockEvent(getBlockPos(), getBlockState().getBlock(), 255, 0);
+ 				}
+-				return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++				return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 			}
+ 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+ 	}
+@@ -750,7 +750,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 	@Override
+ 	public boolean hammerUseSide(Direction side, Player player, InteractionHand hand, Vec3 hitVec)
+ 	{
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			return true;
+ 		hitVec = hitVec.subtract(Vec3.atLowerCornerOf(worldPosition));
+ 		Direction fd = side;
+@@ -783,7 +783,7 @@ public class FluidPipeBlockEntity extends IEBaseBlockEntity implements IFluidPip
+ 	public void onBEPlaced(BlockPlaceContext ctx)
+ 	{
+ 		final Level level = ctx.getLevel();
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			return;
+ 		if(ctx.getPlayer()!=null)
+ 		{
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneStateCellBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneStateCellBlockEntity.java
+index 5a53277..efb6d41 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneStateCellBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneStateCellBlockEntity.java
+@@ -92,7 +92,7 @@ public class RedstoneStateCellBlockEntity extends ConnectorRedstoneBlockEntity
+ 	@Override
+ 	public void onChange(ConnectionPoint cp, RedstoneNetworkHandler handler)
+ 	{
+-		if(!level.isClientSide&&SafeChunkUtils.isChunkSafe(level, worldPosition))
++		if(!level.isClientSide()&&SafeChunkUtils.isChunkSafe(level, worldPosition))
+ 		{
+ 			int setVal = handler.getValue(redstoneChannelSet.getId());
+ 			int resetVal = handler.getValue(redstoneChannelReset.getId());
+@@ -129,7 +129,7 @@ public class RedstoneStateCellBlockEntity extends ConnectorRedstoneBlockEntity
+ 	@Override
+ 	public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Vec3 hitVec)
+ 	{
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			ImmersiveEngineering.proxy.openTileScreen(Lib.GUIID_RedstoneStateCell, this);
+ 		return ItemInteractionResult.SUCCESS;
+ 	}
+@@ -138,11 +138,11 @@ public class RedstoneStateCellBlockEntity extends ConnectorRedstoneBlockEntity
+ 	public void receiveMessageFromClient(CompoundTag message)
+ 	{
+ 		if(message.contains("redstoneChannelSet"))
+-			redstoneChannelSet = DyeColor.byId(message.getInt("redstoneChannelSet"));
++			redstoneChannelSet = DyeColor.byId(message.getIntOr("redstoneChannelSet", 0));
+ 		if(message.contains("redstoneChannelReset"))
+-			redstoneChannelReset = DyeColor.byId(message.getInt("redstoneChannelReset"));
++			redstoneChannelReset = DyeColor.byId(message.getIntOr("redstoneChannelReset", 0));
+ 		if(message.contains("redstoneChannel"))
+-			redstoneChannel = DyeColor.byId(message.getInt("redstoneChannel"));
++			redstoneChannel = DyeColor.byId(message.getIntOr("redstoneChannel", 0));
+ 		updateAfterConfigure();
+ 	}
+ 
+@@ -159,9 +159,9 @@ public class RedstoneStateCellBlockEntity extends ConnectorRedstoneBlockEntity
+ 	public void readCustomNBT(@Nonnull CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		super.readCustomNBT(nbt, descPacket, provider);
+-		redstoneChannelSet = DyeColor.byId(nbt.getInt("redstoneChannelSet"));
+-		redstoneChannelReset = DyeColor.byId(nbt.getInt("redstoneChannelReset"));
+-		wasToggled = nbt.getBoolean("wasToggled");
++		redstoneChannelSet = DyeColor.byId(nbt.getIntOr("redstoneChannelSet", 0));
++		redstoneChannelReset = DyeColor.byId(nbt.getIntOr("redstoneChannelReset", 0));
++		wasToggled = nbt.getBooleanOr("wasToggled", false);
+ 	}
+ 
+ 	@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneSwitchboardBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneSwitchboardBlockEntity.java
+index 00e9861..030a205 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneSwitchboardBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneSwitchboardBlockEntity.java
+@@ -139,17 +139,17 @@ public class RedstoneSwitchboardBlockEntity extends ImmersiveConnectableBlockEnt
+ 	public void readCustomNBT(@Nonnull CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		super.readCustomNBT(nbt, descPacket, provider);
+-		ListTag settingsTag = nbt.getList("settings", 10);
++		ListTag settingsTag = nbt.getListOrEmpty("settings");
+ 		this.settings.clear();
+ 		for(int i = 0; i < settingsTag.size(); i++)
+-			this.settings.add(new SwitchboardSetting(settingsTag.getCompound(i)));
++			this.settings.add(new SwitchboardSetting(settingsTag.getCompoundOrEmpty(i)));
+ 	}
+ 
+ 	@Override
+ 	public void receiveMessageFromClient(CompoundTag message)
+ 	{
+ 		if(message.contains("remove"))
+-			removeSetting(DyeColor.byId(message.getInt("remove")));
++			removeSetting(DyeColor.byId(message.getIntOr("remove", 0)));
+ 		else
+ 			addSetting(new SwitchboardSetting(message));
+ 	}
+@@ -231,7 +231,7 @@ public class RedstoneSwitchboardBlockEntity extends ImmersiveConnectableBlockEnt
+ 	@Override
+ 	public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Vec3 hitVec)
+ 	{
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			ImmersiveEngineering.proxy.openTileScreen(Lib.GUIID_RedstoneSwitchboard, this);
+ 		return ItemInteractionResult.SUCCESS;
+ 	}
+@@ -283,9 +283,9 @@ public class RedstoneSwitchboardBlockEntity extends ImmersiveConnectableBlockEnt
+ 		private SwitchboardSetting(CompoundTag nbt)
+ 		{
+ 			this(
+-					DyeColor.byId(nbt.getInt("input")),
++					DyeColor.byId(nbt.getIntOr("input", 0)),
+ 					nbt.getBoolean("invert"),
+-					DyeColor.byId(nbt.getInt("output"))
++					DyeColor.byId(nbt.getIntOr("output", 0))
+ 			);
+ 		}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneTimerBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneTimerBlockEntity.java
+index bc4f8b0..897a940 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneTimerBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/RedstoneTimerBlockEntity.java
+@@ -74,7 +74,7 @@ public class RedstoneTimerBlockEntity extends ConnectorRedstoneBlockEntity
+ 	@Override
+ 	public void onChange(ConnectionPoint cp, RedstoneNetworkHandler handler)
+ 	{
+-		if(!level.isClientSide&&SafeChunkUtils.isChunkSafe(level, worldPosition))
++		if(!level.isClientSide()&&SafeChunkUtils.isChunkSafe(level, worldPosition))
+ 		{
+ 			final boolean hadSignal = hasControlSignal;
+ 			hasControlSignal = handler.getValue(redstoneChannelControl.getId()) > 0;
+@@ -113,7 +113,7 @@ public class RedstoneTimerBlockEntity extends ConnectorRedstoneBlockEntity
+ 	@Override
+ 	public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Vec3 hitVec)
+ 	{
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			ImmersiveEngineering.proxy.openTileScreen(Lib.GUIID_RedstoneTimer, this);
+ 		return ItemInteractionResult.SUCCESS;
+ 	}
+@@ -122,13 +122,13 @@ public class RedstoneTimerBlockEntity extends ConnectorRedstoneBlockEntity
+ 	public void receiveMessageFromClient(CompoundTag message)
+ 	{
+ 		if(message.contains("timerSetting"))
+-			timerSetting = message.getInt("timerSetting");
++			timerSetting = message.getIntOr("timerSetting", 0);
+ 		if(message.contains("redstoneChannel"))
+-			redstoneChannel = DyeColor.byId(message.getInt("redstoneChannel"));
++			redstoneChannel = DyeColor.byId(message.getIntOr("redstoneChannel", 0));
+ 		if(message.contains("redstoneChannelControl"))
+-			redstoneChannelControl = DyeColor.byId(message.getInt("redstoneChannelControl"));
++			redstoneChannelControl = DyeColor.byId(message.getIntOr("redstoneChannelControl", 0));
+ 		if(message.contains("requireControlSignal"))
+-			requireControlSignal = message.getBoolean("requireControlSignal");
++			requireControlSignal = message.getBooleanOr("requireControlSignal", false);
+ 		updateAfterConfigure();
+ 	}
+ 
+@@ -154,11 +154,11 @@ public class RedstoneTimerBlockEntity extends ConnectorRedstoneBlockEntity
+ 	public void readCustomNBT(@Nonnull CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		super.readCustomNBT(nbt, descPacket, provider);
+-		timerSetting = nbt.getInt("timerSetting");
+-		currentTimer = nbt.getInt("currentTimer");
+-		requireControlSignal = nbt.getBoolean("requireControlSignal");
+-		hasControlSignal = nbt.getBoolean("hasControlSignal");
+-		redstoneChannelControl = DyeColor.byId(nbt.getInt("redstoneChannelControl"));
++		timerSetting = nbt.getIntOr("timerSetting", 0);
++		currentTimer = nbt.getIntOr("currentTimer", 0);
++		requireControlSignal = nbt.getBooleanOr("requireControlSignal", false);
++		hasControlSignal = nbt.getBooleanOr("hasControlSignal", false);
++		redstoneChannelControl = DyeColor.byId(nbt.getIntOr("redstoneChannelControl", 0));
+ 	}
+ 
+ 	@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SampleDrillBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SampleDrillBlockEntity.java
+index ce25061..87b588a 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SampleDrillBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SampleDrillBlockEntity.java
+@@ -181,10 +181,10 @@ public class SampleDrillBlockEntity extends IEBaseBlockEntity implements IEServe
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		EnergyHelper.deserializeFrom(energyStorage, nbt, provider);
+-		dummy = nbt.getInt("dummy");
+-		process = nbt.getInt("process");
+-		isRunning = nbt.getBoolean("isRunning");
+-		if(nbt.contains("sample", Tag.TAG_COMPOUND))
++		dummy = nbt.getIntOr("dummy", 0);
++		process = nbt.getIntOr("process", 0);
++		isRunning = nbt.getBooleanOr("isRunning", false);
++		if(nbt.contains("sample"))
+ 			sample = ItemStack.parseOptional(provider, nbt.getCompound("sample"));
+ 		else
+ 			sample = ItemStack.EMPTY;
+@@ -248,24 +248,24 @@ public class SampleDrillBlockEntity extends IEBaseBlockEntity implements IEServe
+ 
+ 		if(!this.sample.isEmpty())
+ 		{
+-			if(!level.isClientSide)
++			if(!level.isClientSide())
+ 			{
+ 				player.spawnAtLocation(this.sample.copy(), .5f);
+ 				this.sample = ItemStack.EMPTY;
+ 				setChanged();
+ 				this.markContainingBlockForUpdate(null);
+ 			}
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		else if(this.process <= 0)
+ 		{
+-			if(!level.isClientSide&&energyStorage.getEnergyStored() >= IEServerConfig.MACHINES.coredrill_consumption.get())
++			if(!level.isClientSide()&&energyStorage.getEnergyStored() >= IEServerConfig.MACHINES.coredrill_consumption.get())
+ 			{
+ 				this.process = 1;
+ 				setChanged();
+ 				this.markContainingBlockForUpdate(null);
+ 			}
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SirenBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SirenBlockEntity.java
+index b13873d..3e3b47b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SirenBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/SirenBlockEntity.java
+@@ -109,7 +109,7 @@ public class SirenBlockEntity extends ImmersiveConnectableBlockEntity
+ 	@Override
+ 	public void onChange(ConnectionPoint cp, RedstoneNetworkHandler handler)
+ 	{
+-		if(!level.isClientSide&&SafeChunkUtils.isChunkSafe(level, worldPosition))
++		if(!level.isClientSide()&&SafeChunkUtils.isChunkSafe(level, worldPosition))
+ 		{
+ 			final boolean oldActive = this.active;
+ 			this.active = handler.getValue(this.redstoneChannel.getId()) > 0;
+@@ -127,7 +127,7 @@ public class SirenBlockEntity extends ImmersiveConnectableBlockEntity
+ 	@Override
+ 	public ItemInteractionResult screwdriverUseSide(Direction side, Player player, InteractionHand hand, Vec3 hitVec)
+ 	{
+-		if(level.isClientSide)
++		if(level.isClientSide())
+ 			ImmersiveEngineering.proxy.openTileScreen(Lib.GUIID_Siren, this);
+ 		return ItemInteractionResult.SUCCESS;
+ 	}
+@@ -136,9 +136,9 @@ public class SirenBlockEntity extends ImmersiveConnectableBlockEntity
+ 	public void receiveMessageFromClient(CompoundTag message)
+ 	{
+ 		if(message.contains("redstoneChannel"))
+-			redstoneChannel = DyeColor.byId(message.getInt("redstoneChannel"));
++			redstoneChannel = DyeColor.byId(message.getIntOr("redstoneChannel", 0));
+ 		if(message.contains("sound"))
+-			sound = SirenSound.BY_ORDINAL.apply(message.getInt("sound"));
++			sound = SirenSound.BY_ORDINAL.apply(message.getIntOr("sound", 0));
+ 	}
+ 
+ 	@Override
+@@ -154,9 +154,9 @@ public class SirenBlockEntity extends ImmersiveConnectableBlockEntity
+ 	public void readCustomNBT(@Nonnull CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+ 		super.readCustomNBT(nbt, descPacket, provider);
+-		redstoneChannel = DyeColor.byId(nbt.getInt("redstoneChannel"));
+-		sound = SirenSound.BY_ORDINAL.apply(nbt.getInt("sound"));
+-		active = nbt.getBoolean("active");
++		redstoneChannel = DyeColor.byId(nbt.getIntOr("redstoneChannel", 0));
++		sound = SirenSound.BY_ORDINAL.apply(nbt.getIntOr("sound", 0));
++		active = nbt.getBooleanOr("active", false);
+ 	}
+ 
+ 	@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TeslaCoilBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TeslaCoilBlockEntity.java
+index b740859..1538ac9 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TeslaCoilBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TeslaCoilBlockEntity.java
+@@ -118,7 +118,7 @@ public class TeslaCoilBlockEntity extends IEBaseBlockEntity implements IEServerT
+ 				target = (LivingEntity)targets.get(randomTarget);
+ 				if(target!=null)
+ 				{
+-					if(!level.isClientSide)
++					if(!level.isClientSide())
+ 					{
+ 						energyDrain = IEServerConfig.MACHINES.teslacoil_consumption_active.get();
+ 						if(lowPower)
+@@ -258,9 +258,9 @@ public class TeslaCoilBlockEntity extends IEBaseBlockEntity implements IEServerT
+ 	@Override
+ 	public void receiveMessageFromServer(CompoundTag message)
+ 	{
+-		if(message.contains("targetEntity", Tag.TAG_INT))
++		if(message.contains("targetEntity"))
+ 		{
+-			Entity target = level.getEntity(message.getInt("targetEntity"));
++			Entity target = level.getEntity(message.getIntOr("targetEntity", 0));
+ 			if(target instanceof LivingEntity)
+ 			{
+ 				double dx = target.getX()-getBlockPos().getX();
+@@ -307,8 +307,8 @@ public class TeslaCoilBlockEntity extends IEBaseBlockEntity implements IEServerT
+ 				level.playLocalSound(coilPos.x, coilPos.y, coilPos.z, IESounds.tesla.value(), SoundSource.BLOCKS, 2.5F, 0.5F+ApiUtils.RANDOM.nextFloat(), true);
+ 			}
+ 		}
+-		else if(message.contains("tL", Tag.TAG_DOUBLE))
+-			initFreeStreamer(message.getDouble("tL"), message.getDouble("tV"), message.getDouble("tH"));
++		else if(message.contains("tL"))
++			initFreeStreamer(message.getDoubleOr("tL", 0D), message.getDoubleOr("tV", 0D), message.getDoubleOr("tH", 0D));
+ 	}
+ 
+ 	public void initFreeStreamer(double tL, double tV, double tH)
+@@ -363,8 +363,8 @@ public class TeslaCoilBlockEntity extends IEBaseBlockEntity implements IEServerT
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		redstoneControlInverted = nbt.getBoolean("redstoneInverted");
+-		lowPower = nbt.getBoolean("lowPower");
++		redstoneControlInverted = nbt.getBooleanOr("redstoneInverted", false);
++		lowPower = nbt.getBooleanOr("lowPower", false);
+ 		EnergyHelper.deserializeFrom(energyStorage, nbt, provider);
+ 	}
+ 
+@@ -411,7 +411,7 @@ public class TeslaCoilBlockEntity extends IEBaseBlockEntity implements IEServerT
+ 				return ((TeslaCoilBlockEntity)te).screwdriverUseSide(side, player, hand, hitVec);
+ 			return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+ 		}
+-		if(!level.isClientSide)
++		if(!level.isClientSide())
+ 		{
+ 			if(player.isShiftKeyDown())
+ 			{
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ToolboxBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ToolboxBlockEntity.java
+index 9f5ead4..b12df1a 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ToolboxBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/ToolboxBlockEntity.java
+@@ -68,7 +68,7 @@ public class ToolboxBlockEntity extends IEBaseBlockEntity implements IStateBased
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		if(nbt.contains("name", Tag.TAG_STRING))
++		if(nbt.contains("name"))
+ 			this.name = Component.Serializer.fromJson(nbt.getString("name"), provider);
+ 		this.enchantments = IECodecs.fromNbtOrThrow(ItemEnchantments.CODEC, nbt.get("enchantments"));
+ 		if(!descPacket)
+@@ -90,7 +90,7 @@ public class ToolboxBlockEntity extends IEBaseBlockEntity implements IStateBased
+ 	{
+ 		if(player.isShiftKeyDown())
+ 		{
+-			if(!level.isClientSide)
++			if(!level.isClientSide())
+ 			{
+ 				ItemEntity entityitem = new ItemEntity(level, player.getX(), player.getY(), player.getZ(),
+ 				    getPickBlock(player, getBlockState(), new BlockHitResult(new Vec3(hitX, hitY, hitZ), side, worldPosition, false)),
+@@ -98,7 +98,7 @@ public class ToolboxBlockEntity extends IEBaseBlockEntity implements IStateBased
+ 				level.removeBlock(getBlockPos(), false);
+ 				level.addFreshEntity(entityitem);
+ 			}
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretBlockEntity.java
+index 3618c6a..0e35382 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretBlockEntity.java
+@@ -123,7 +123,7 @@ public abstract class TurretBlockEntity<T extends TurretBlockEntity<T>> extends
+ 			double dSq = delta.lengthSqr();
+ 			if(dSq > range*range)
+ 				this.target = null;
+-			else if(level.isClientSide)
++			else if(level.isClientSide())
+ 			{
+ 				double yaw = (Mth.atan2(delta.x, delta.z)*(180/Math.PI))-180;
+ 				this.rotationPitch = (float)(Math.atan2(Math.sqrt(delta.x*delta.x+delta.z*delta.z), delta.y)*(180/Math.PI))-90;
+@@ -134,7 +134,7 @@ public abstract class TurretBlockEntity<T extends TurretBlockEntity<T>> extends
+ 					this.rotationYaw = (float)yaw-defaultYaw;
+ 			}
+ 		}
+-		else if(level.isClientSide)
++		else if(level.isClientSide())
+ 		{
+ 			this.rotationYaw *= .75;
+ 			if(Math.abs(rotationYaw) < 10)
+@@ -306,14 +306,14 @@ public abstract class TurretBlockEntity<T extends TurretBlockEntity<T>> extends
+ 		EnergyHelper.deserializeFrom(energyStorage, nbt, provider);
+ 
+ 		if(nbt.contains("owner"))
+-			owner = nbt.getString("owner");
++			owner = nbt.getStringOr("owner", "");
+ 		else
+ 			owner = null;
+ 		this.config = TurretConfig.CODECS.codec().decode(NbtOps.INSTANCE, nbt.get("config")).getOrThrow().getFirst();
+ 
+ 		target = null;
+-		if(nbt.contains("target", Tag.TAG_STRING))
+-			targetId = UUID.fromString(nbt.getString("target"));
++		if(nbt.contains("target"))
++			targetId = UUID.fromString(nbt.getStringOr("target", ""));
+ 	}
+ 
+ 	@Override
+@@ -357,7 +357,7 @@ public abstract class TurretBlockEntity<T extends TurretBlockEntity<T>> extends
+ 				return ((TurretBlockEntity<?>)te).screwdriverUseSide(side, player, hand, hitVec);
+ 			return ItemInteractionResult.FAIL;
+ 		}
+-		if(player.isShiftKeyDown()&&!level.isClientSide)
++		if(player.isShiftKeyDown()&&!level.isClientSide())
+ 		{
+ 			config = new TurretConfig(
+ 					config.targetList, config.whitelist, config.attackAnimals, config.attackPlayers, config.attackNeutrals, !config.redstoneControlInverted
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretChemBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretChemBlockEntity.java
+index d8e1dcf..7b5e936 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretChemBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretChemBlockEntity.java
+@@ -113,7 +113,7 @@ public class TurretChemBlockEntity extends TurretBlockEntity<TurretChemBlockEnti
+ 					chem.setDeltaMovement(vecDir.scale(range));
+ 					if(ignite)
+ 						chem.igniteForSeconds(10);
+-					if(!level.isClientSide)
++					if(!level.isClientSide())
+ 						level.addFreshEntity(chem);
+ 				}
+ 				if(tick%4==0)
+@@ -134,7 +134,7 @@ public class TurretChemBlockEntity extends TurretBlockEntity<TurretChemBlockEnti
+ 		if(!descPacket)
+ 		{
+ 			tank.readFromNBT(provider, nbt.getCompound("tank"));
+-			ignite = nbt.getBoolean("ignite");
++			ignite = nbt.getBooleanOr("ignite", false);
+ 		}
+ 	}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretGunBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretGunBlockEntity.java
+index b5eaf4a..b161892 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretGunBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/metal/TurretGunBlockEntity.java
+@@ -204,7 +204,7 @@ public class TurretGunBlockEntity extends TurretBlockEntity<TurretGunBlockEntity
+ 		super.readCustomNBT(nbt, descPacket, provider);
+ 		if(!descPacket)
+ 		{
+-			expelCasings = nbt.getBoolean("expelCasings");
++			expelCasings = nbt.getBooleanOr("expelCasings", false);
+ 			ContainerHelper.loadAllItems(nbt, inventory, provider);
+ 		}
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AlloySmelterLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AlloySmelterLogic.java
+index c4f1e9f..f2bee91 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AlloySmelterLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AlloySmelterLogic.java
+@@ -114,7 +114,7 @@ public class AlloySmelterLogic implements IMultiblockLogic<State>, IServerTickab
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
+ 			furnace.readNBT(nbt.get("furnace"));
+ 		}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AssemblerLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AssemblerLogic.java
+index 79e6a48..e95cac6 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AssemblerLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AssemblerLogic.java
+@@ -408,14 +408,14 @@ public class AssemblerLogic implements IMultiblockLogic<State>, IServerTickableC
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			ListTag tanks = nbt.getList("tanks", Tag.TAG_COMPOUND);
++			ListTag tanks = nbt.getListOrEmpty("tanks");
+ 			for(int i = 0; i < NUM_TANKS; ++i)
+ 				this.tanks[i].readFromNBT(provider, tanks.getCompound(i));
+-			ListTag patterns = nbt.getList("patterns", Tag.TAG_LIST);
++			ListTag patterns = nbt.getListOrEmpty("patterns");
+ 			for(int i = 0; i < NUM_PATTERNS; ++i)
+-				this.patterns[i].readFromNBT(patterns.getList(i), provider);
+-			recursiveIngredients = nbt.getBoolean("recursiveIngredients");
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
++				this.patterns[i].readFromNBT(patterns.getListOrEmpty(i), provider);
++			recursiveIngredients = nbt.getBooleanOr("recursiveIngredients", false);
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
+ 			energy.deserializeNBT(provider, nbt.get("energy"));
+ 		}
+ 
+@@ -428,7 +428,7 @@ public class AssemblerLogic implements IMultiblockLogic<State>, IServerTickableC
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			shouldPlaySound = nbt.getBoolean("shouldPlaySound");
++			shouldPlaySound = nbt.getBooleanOr("shouldPlaySound", false);
+ 		}
+ 
+ 		public IItemHandler getInventory()
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AutoWorkbenchLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AutoWorkbenchLogic.java
+index 4b1c353..5c5806e 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AutoWorkbenchLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/AutoWorkbenchLogic.java
+@@ -241,8 +241,8 @@ public class AutoWorkbenchLogic
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
+-			selectedRecipe = nbt.getInt("selectedRecipe");
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
++			selectedRecipe = nbt.getIntOr("selectedRecipe", 0);
+ 			processor.fromNBT(nbt.get("processor"), MultiblockProcessInWorld::new, provider);
+ 			energy.deserializeNBT(provider, nbt.get("energy"));
+ 		}
+@@ -260,9 +260,9 @@ public class AutoWorkbenchLogic
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			processor.fromNBT(nbt.get("processor"), MultiblockProcessInWorld::new, provider);
+-			active = nbt.getBoolean("active");
++			active = nbt.getBooleanOr("active", false);
+ 			inventory.setStackInSlot(BLUEPRINT_SLOT, ItemStack.parseOptional(provider, nbt.getCompound("blueprint")));
+-			selectedRecipe = nbt.getInt("selectedRecipe");
++			selectedRecipe = nbt.getIntOr("selectedRecipe", 0);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BlastFurnaceLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BlastFurnaceLogic.java
+index 96b9a7b..b06f118 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BlastFurnaceLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BlastFurnaceLogic.java
+@@ -113,7 +113,7 @@ public class BlastFurnaceLogic implements IMultiblockLogic<State>, IServerTickab
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
+ 			furnace.readNBT(nbt.get("furnace"));
+ 		}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BucketWheelLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BucketWheelLogic.java
+index eb65ac5..1456a90 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BucketWheelLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/BucketWheelLogic.java
+@@ -88,13 +88,13 @@ public class BucketWheelLogic
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			rotation = nbt.getFloat("rotation");
+-			final ListTag stacksNBT = nbt.getList("stacks", Tag.TAG_COMPOUND);
++			rotation = nbt.getFloatOr("rotation", 0F);
++			final ListTag stacksNBT = nbt.getListOrEmpty("stacks");
+ 			for(int i = 0; i < stacksNBT.size(); ++i)
+ 				digStacks.set(i, ItemStack.parseOptional(provider, stacksNBT.getCompound(i)));
+-			active = nbt.getBoolean("active");
+-			reverseRotation = nbt.getBoolean("renderReverse");
+-			outputLeft = nbt.getBoolean("outputLeft");
++			active = nbt.getBooleanOr("active", false);
++			reverseRotation = nbt.getBooleanOr("renderReverse", false);
++			outputLeft = nbt.getBooleanOr("outputLeft", false);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ChunkLoaderLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ChunkLoaderLogic.java
+index a5d8448..6cb1ad3 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ChunkLoaderLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ChunkLoaderLogic.java
+@@ -204,9 +204,9 @@ public class ChunkLoaderLogic
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
+-			energy.deserializeNBT(provider, nbt.getCompound("energy"));
+-			refreshTimer = nbt.getInt("refreshTimer");
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
++			energy.deserializeNBT(provider, nbt.getCompoundOrEmpty("energy"));
++			refreshTimer = nbt.getIntOr("refreshTimer", 0);
+ 		}
+ 
+ 		@Override
+@@ -218,7 +218,7 @@ public class ChunkLoaderLogic
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			renderAsActive = nbt.getBoolean("renderAsActive");
++			renderAsActive = nbt.getBooleanOr("renderAsActive", false);
+ 		}
+ 
+ 		public Stream<BlockEntity> getNearbyBlockEntities(IMultiblockContext<State> ctx)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CokeOvenLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CokeOvenLogic.java
+index 67b72df..3b12033 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CokeOvenLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CokeOvenLogic.java
+@@ -256,9 +256,9 @@ public class CokeOvenLogic implements IMultiblockLogic<State>, IServerTickableCo
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			tank.readFromNBT(provider, nbt.getCompound("tank"));
+-			process = nbt.getInt("process");
+-			processMax = nbt.getInt("processMax");
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
++			process = nbt.getIntOr("process", 0);
++			processMax = nbt.getIntOr("processMax", 0);
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CrusherLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CrusherLogic.java
+index d3ced82..a2bd001 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CrusherLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/CrusherLogic.java
+@@ -164,7 +164,7 @@ public class CrusherLogic implements
+ 	@Override
+ 	public void onEntityCollision(IMultiblockContext<State> ctx, BlockPos posInMultiblock, Entity collided)
+ 	{
+-		if(collided.level().isClientSide||!isInInput(posInMultiblock, true))
++		if(collided.level().isClientSide()||!isInInput(posInMultiblock, true))
+ 			return;
+ 		final State state = ctx.getState();
+ 		if(!collided.isAlive()||!state.rsState.isEnabled(ctx))
+@@ -256,7 +256,7 @@ public class CrusherLogic implements
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			renderAsActive = nbt.getBoolean("renderActive");
++			renderAsActive = nbt.getBooleanOr("renderActive", false);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/DieselGeneratorLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/DieselGeneratorLogic.java
+index c11bed2..7eded39 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/DieselGeneratorLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/DieselGeneratorLogic.java
+@@ -241,8 +241,8 @@ public class DieselGeneratorLogic
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			tank.readFromNBT(provider, nbt.getCompound("tank0"));
+-			active = nbt.getBoolean("active");
+-			consumeTick = nbt.getInt("consumeTick");
++			active = nbt.getBooleanOr("active", false);
++			consumeTick = nbt.getIntOr("consumeTick", 0);
+ 		}
+ 
+ 		@Override
+@@ -255,7 +255,7 @@ public class DieselGeneratorLogic
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			final boolean oldActive = active;
+-			active = nbt.getBoolean("active");
++			active = nbt.getBooleanOr("active", false);
+ 			if(active&&!oldActive)
+ 				animation_fanFadeIn = 80;
+ 			else if(!active&&oldActive)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FermenterLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FermenterLogic.java
+index 725a29c..0440c81 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FermenterLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FermenterLogic.java
+@@ -280,7 +280,7 @@ public class FermenterLogic
+ 		{
+ 			energy.deserializeNBT(provider, nbt.get("energy"));
+ 			tank.readFromNBT(provider, nbt.getCompound("tank"));
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
+ 			processor.fromNBT(
+ 					nbt.get("processor"),
+ 					(getRecipe, data, p) -> new MultiblockProcessInMachine<>(getRecipe, data),
+@@ -297,7 +297,7 @@ public class FermenterLogic
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			active = nbt.getBoolean("active");
++			active = nbt.getBooleanOr("active", false);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FurnaceHandler.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FurnaceHandler.java
+index 6cafa33..726c91e 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FurnaceHandler.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/FurnaceHandler.java
+@@ -146,10 +146,10 @@ public class FurnaceHandler<R extends IESerializableRecipe>
+ 	{
+ 		if(!(nbt instanceof CompoundTag compound))
+ 			return;
+-		process = compound.getInt("process");
+-		processMax = compound.getInt("processMax");
+-		burnTime = compound.getInt("burnTime");
+-		lastBurnTime = compound.getInt("lastBurnTime");
++		process = compound.getIntOr("process", 0);
++		processMax = compound.getIntOr("processMax", 0);
++		burnTime = compound.getIntOr("burnTime", 0);
++		lastBurnTime = compound.getIntOr("lastBurnTime", 0);
+ 	}
+ 
+ 	private boolean isAnyInputEmpty(IItemHandler inv)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/MetalPressLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/MetalPressLogic.java
+index 6d275af..01486c3 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/MetalPressLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/MetalPressLogic.java
+@@ -118,7 +118,7 @@ public class MetalPressLogic
+ 	public void onEntityCollision(IMultiblockContext<State> ctx, BlockPos posInMultiblock, Entity entity)
+ 	{
+ 		final Level world = ctx.getLevel().getRawLevel();
+-		if(world.isClientSide||!INPUT_POS.posInMultiblock().equals(posInMultiblock))
++		if(world.isClientSide()||!INPUT_POS.posInMultiblock().equals(posInMultiblock))
+ 			return;
+ 		if(entity instanceof ItemEntity itemEntity&&entity.isAlive()&&!itemEntity.getItem().isEmpty())
+ 		{
+@@ -280,7 +280,7 @@ public class MetalPressLogic
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			readCommonNBT(provider, nbt);
+-			renderAsActive = nbt.getBoolean("active");
++			renderAsActive = nbt.getBooleanOr("active", false);
+ 		}
+ 
+ 		private void writeCommonNBT(Provider provider, CompoundTag nbt)
+@@ -313,9 +313,9 @@ public class MetalPressLogic
+ 				BiFunction<Level, Identifier, MetalPressRecipe> getRecipe, CompoundTag tag, Provider provider
+ 		)
+ 		{
+-			if(tag.contains("baseRecipe", Tag.TAG_STRING))
++			if(tag.contains("baseRecipe"))
+ 				return new SpecialMetalPressProcess(
+-						tag, Identifier.parse(tag.getString("baseRecipe")), provider
++						tag, Identifier.parse(tag.getStringOr("baseRecipe", "")), provider
+ 				);
+ 			else
+ 				return new MultiblockProcessInWorld<>(getRecipe, tag, provider);
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RadioTowerLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RadioTowerLogic.java
+index 4cd2735..87829cd 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RadioTowerLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RadioTowerLogic.java
+@@ -230,9 +230,9 @@ public class RadioTowerLogic
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			frequency = nbt.getInt("frequency");
+-			savedFrequencies = nbt.getIntArray("savedFrequencies");
+-			energy.deserializeNBT(provider, nbt.getCompound("energy"));
++			frequency = nbt.getIntOr("frequency", 0);
++			savedFrequencies = nbt.getIntArray("savedFrequencies").orElse(new int[0]);
++			energy.deserializeNBT(provider, nbt.getCompoundOrEmpty("energy"));
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RefineryLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RefineryLogic.java
+index 9a7845a..38412ff 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RefineryLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/RefineryLogic.java
+@@ -256,13 +256,13 @@ public class RefineryLogic
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			energy.deserializeNBT(provider, nbt.get("energy"));
+-			tanks.readNBT(provider, nbt.getCompound("tanks"));
++			tanks.readNBT(provider, nbt.getCompoundOrEmpty("tanks"));
+ 			processor.fromNBT(
+ 					nbt.get("processor"),
+ 					(getRecipe, data, p) -> new MultiblockProcessInMachine<>(getRecipe, data),
+ 					provider
+ 			);
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
+ 		}
+ 
+ 		@Override
+@@ -274,7 +274,7 @@ public class RefineryLogic
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			active = nbt.getBoolean("active");
++			active = nbt.getBooleanOr("active", false);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ShelfLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ShelfLogic.java
+index 18af888..9335f12 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ShelfLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/ShelfLogic.java
+@@ -277,11 +277,11 @@ public class ShelfLogic implements IMultiblockLogic<State>, MBOverlayText<State>
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			ListTag names = nbt.getList("crates", 10);
++			ListTag names = nbt.getListOrEmpty("crates");
+ 			for(int i = 0; i < NUM_CRATES; i++)
+ 			{
+-				CompoundTag tag = names.getCompound(i);
+-				Item item = BuiltInRegistries.ITEM.get(Identifier.parse(tag.getString("id")));
++				CompoundTag tag = names.getCompoundOrEmpty(i);
++				Item item = BuiltInRegistries.ITEM.get(Identifier.parse(tag.getStringOr("id", "")));
+ 				CrateVariant variant = CRATE_VARIANTS.get().get(item);
+ 				this.renderCrates[i] = variant!=null?variant.crateTexture(): null;
+ 				this.names[i] = Serializer.fromJson(tag.getString("name"), provider);
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SiloLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SiloLogic.java
+index c113c8b..2648352 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SiloLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SiloLogic.java
+@@ -164,7 +164,7 @@ public class SiloLogic implements IMultiblockLogic<State>, IServerTickableCompon
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			identStack = ItemStack.parseOptional(provider, nbt.getCompound("identStack"));
+-			storageAmount = nbt.getInt("count");
++			storageAmount = nbt.getIntOr("count", 0);
+ 			structureMemo.readSaveNBT(nbt, provider);
+ 		}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SqueezerLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SqueezerLogic.java
+index 2c838d9..c1bdf4e 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SqueezerLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/SqueezerLogic.java
+@@ -262,7 +262,7 @@ public class SqueezerLogic
+ 		{
+ 			energy.deserializeNBT(provider, nbt.get("energy"));
+ 			tank.readFromNBT(provider, nbt.getCompound("tank"));
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
+ 			processor.fromNBT(
+ 					nbt.get("processor"),
+ 					(getRecipe, data, p) -> new MultiblockProcessInMachine<>(getRecipe, data),
+@@ -279,7 +279,7 @@ public class SqueezerLogic
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			active = nbt.getBoolean("active");
++			active = nbt.getBooleanOr("active", false);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceLogic.java
+index c9d8aed..5b80e6b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceLogic.java
+@@ -431,10 +431,10 @@ public class ArcFurnaceLogic
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			electrodePresence = nbt.getByte("electrodeMask");
+-			active = nbt.getBoolean("active");
+-			pouringMetal = nbt.getInt("pouringMetal");
+-			queueSize = nbt.getInt("queueSize");
++			electrodePresence = nbt.getByteOr("electrodeMask", (byte) 0);
++			active = nbt.getBooleanOr("active", false);
++			pouringMetal = nbt.getIntOr("pouringMetal", 0);
++			queueSize = nbt.getIntOr("queueSize", 0);
+ 		}
+ 
+ 		private boolean updateElectrodePresence()
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceProcess.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceProcess.java
+index 8e573cc..4bf3426 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceProcess.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/arcfurnace/ArcFurnaceProcess.java
+@@ -33,7 +33,7 @@ public class ArcFurnaceProcess extends MultiblockProcessInMachine<ArcFurnaceReci
+ 	public ArcFurnaceProcess(BiFunction<Level, Identifier, ArcFurnaceRecipe> getRecipe, CompoundTag data)
+ 	{
+ 		super(getRecipe, data);
+-		this.seed = data.getLong("seed");
++		this.seed = data.getLongOr("seed", 0L);
+ 	}
+ 
+ 	public ArcFurnaceProcess(RecipeHolder<ArcFurnaceRecipe> recipe, long seed, int... inputSlots)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/bottling_machine/BottlingMachineLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/bottling_machine/BottlingMachineLogic.java
+index 2c02b86..182c081 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/bottling_machine/BottlingMachineLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/bottling_machine/BottlingMachineLogic.java
+@@ -127,7 +127,7 @@ public class BottlingMachineLogic
+ 	public void onEntityCollision(IMultiblockContext<State> ctx, BlockPos posInMultiblock, Entity collided)
+ 	{
+ 		final Level level = collided.level();
+-		if(!new BlockPos(0, 1, 1).equals(posInMultiblock)||level.isClientSide)
++		if(!new BlockPos(0, 1, 1).equals(posInMultiblock)||level.isClientSide())
+ 			return;
+ 		else if(!(collided instanceof ItemEntity)||!collided.isAlive())
+ 			return;
+@@ -289,7 +289,7 @@ public class BottlingMachineLogic
+ 			processor.fromNBT(nbt.get("processor"), BottlingProcess.loader(this), provider);
+ 			energy.deserializeNBT(provider, nbt.get("energy"));
+ 			tank.readFromNBT(provider, nbt.getCompound("tank"));
+-			allowPartialFill = nbt.getBoolean("allowPartialFill");
++			allowPartialFill = nbt.getBooleanOr("allowPartialFill", false);
+ 		}
+ 
+ 		@Override
+@@ -305,7 +305,7 @@ public class BottlingMachineLogic
+ 		{
+ 			processor.fromNBT(nbt.get("processor"), BottlingProcess.loader(this), provider);
+ 			tank.readFromNBT(provider, nbt.getCompound("tank"));
+-			active = nbt.getBoolean("active");
++			active = nbt.getBooleanOr("active", false);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/interfaces/MBMemorizeStructure.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/interfaces/MBMemorizeStructure.java
+index aeda63e..3cf00bd 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/interfaces/MBMemorizeStructure.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/interfaces/MBMemorizeStructure.java
+@@ -47,12 +47,12 @@ public interface MBMemorizeStructure<State extends IMultiblockState> extends IMu
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			HolderGetter<Block> lookup = provider.lookupOrThrow(Registries.BLOCK);
+-			ListTag list = nbt.getList("memorizedStates", 10);
++			ListTag list = nbt.getListOrEmpty("memorizedStates");
+ 			list.forEach(tag -> {
+ 				if(tag instanceof CompoundTag compound)
+ 					this.put(
+ 							NbtUtils.readBlockPos(compound, "pos").orElseThrow(),
+-							NbtUtils.readBlockState(lookup, compound.getCompound("state"))
++							NbtUtils.readBlockState(lookup, compound.getCompoundOrEmpty("state"))
+ 					);
+ 			});
+ 		}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/mixer/MixerLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/mixer/MixerLogic.java
+index 9048c88..118a44f 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/mixer/MixerLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/mixer/MixerLogic.java
+@@ -311,9 +311,9 @@ public class MixerLogic
+ 		@Override
+ 		public void readSaveNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			tank.readFromNBT(nbt.getCompound("tank"), provider);
+-			inventory.deserializeNBT(provider, nbt.getCompound("inventory"));
+-			outputAll = nbt.getBoolean("outputAll");
++			tank.readFromNBT(nbt.getCompoundOrEmpty("tank"), provider);
++			inventory.deserializeNBT(provider, nbt.getCompoundOrEmpty("inventory"));
++			outputAll = nbt.getBooleanOr("outputAll", false);
+ 			processor.fromNBT(nbt.get("processor"), (getRecipe, data, p) -> new MixingProcess(getRecipe, data, tank), provider);
+ 		}
+ 
+@@ -328,9 +328,9 @@ public class MixerLogic
+ 		@Override
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+-			tank.readFromNBT(nbt.getCompound("tank"), provider);
+-			isActive = nbt.getBoolean("isActive");
+-			animation_agitator = nbt.getFloat("animation_agitator");
++			tank.readFromNBT(nbt.getCompoundOrEmpty("tank"), provider);
++			isActive = nbt.getBooleanOr("isActive", false);
++			animation_agitator = nbt.getFloatOr("animation_agitator", 0F);
+ 		}
+ 
+ 		@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillLogic.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillLogic.java
+index 1de9c79..54e4c44 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillLogic.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillLogic.java
+@@ -213,7 +213,7 @@ public class SawmillLogic
+ 		final State state = ctx.getState();
+ 		final IMultiblockLevel level = ctx.getLevel();
+ 		final Level rawLevel = level.getRawLevel();
+-		if(rawLevel.isClientSide||collided==null||!collided.isAlive()||!state.rsState.isEnabled(ctx))
++		if(rawLevel.isClientSide()||collided==null||!collided.isAlive()||!state.rsState.isEnabled(ctx))
+ 			return;
+ 		if(new BlockPos(0, 1, 1).equals(posInMultiblock)&&collided instanceof ItemEntity itemEntity)
+ 		{
+@@ -425,7 +425,7 @@ public class SawmillLogic
+ 		{
+ 			energy.deserializeNBT(provider, nbt.get("energy"));
+ 			readCommonNBT(nbt, provider);
+-			combinedLogs = nbt.getInt("combinedLogs");
++			combinedLogs = nbt.getIntOr("combinedLogs", 0);
+ 		}
+ 
+ 		@Override
+@@ -439,7 +439,7 @@ public class SawmillLogic
+ 		public void readSyncNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			readCommonNBT(nbt, provider);
+-			active = ActiveState.values()[nbt.getInt("active")];
++			active = ActiveState.values()[nbt.getIntOr("active", 0)];
+ 		}
+ 
+ 		private void writeCommonNBT(CompoundTag nbt, Provider provider)
+@@ -454,10 +454,10 @@ public class SawmillLogic
+ 		private void readCommonNBT(CompoundTag nbt, Provider provider)
+ 		{
+ 			sawblade = ItemStack.parseOptional(provider, nbt.getCompound("sawblade"));
+-			ListTag processes = nbt.getList("processes", Tag.TAG_COMPOUND);
++			ListTag processes = nbt.getListOrEmpty("processes");
+ 			sawmillProcessQueue.clear();
+ 			for(int i = 0; i < processes.size(); ++i)
+-				sawmillProcessQueue.add(SawmillProcess.readFromNBT(processes.getCompound(i), provider));
++				sawmillProcessQueue.add(SawmillProcess.readFromNBT(processes.getCompoundOrEmpty(i), provider));
+ 		}
+ 
+ 		public IEnergyStorage getEnergy()
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillProcess.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillProcess.java
+index d855215..fa75238 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillProcess.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/logic/sawmill/SawmillProcess.java
+@@ -138,9 +138,9 @@ public class SawmillProcess
+ 	{
+ 		ItemStack input = ItemStack.parseOptional(provider, nbt.getCompound("input"));
+ 		SawmillProcess process = new SawmillProcess(input);
+-		process.processTick = nbt.getInt("processTick");
+-		process.stripped = nbt.getBoolean("stripped");
+-		process.sawed = nbt.getBoolean("sawed");
++		process.processTick = nbt.getIntOr("processTick", 0);
++		process.stripped = nbt.getBooleanOr("stripped", false);
++		process.sawed = nbt.getBooleanOr("sawed", false);
+ 		return process;
+ 	}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcess.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcess.java
+index c4070a3..92d0c4b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcess.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcess.java
+@@ -54,8 +54,8 @@ public abstract class MultiblockProcess<R extends MultiblockRecipe, CTX extends
+ 			BiFunction<Level, Identifier, R> getRecipe, CompoundTag data
+ 	)
+ 	{
+-		this(Identifier.parse(data.getString("recipe")), getRecipe);
+-		this.processTick = data.getInt("process_processTick");
++		this(Identifier.parse(data.getStringOr("recipe", "")), getRecipe);
++		this.processTick = data.getIntOr("process_processTick", 0);
+ 	}
+ 
+ 	protected List<ItemStack> getRecipeItemOutputs(Level level, CTX context)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInMachine.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInMachine.java
+index fd51303..5becc4b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInMachine.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInMachine.java
+@@ -54,7 +54,7 @@ public class MultiblockProcessInMachine<R extends MultiblockRecipe>
+ 	public MultiblockProcessInMachine(BiFunction<Level, Identifier, R> getRecipe, CompoundTag data)
+ 	{
+ 		super(getRecipe, data);
+-		this.inputSlots = data.getIntArray("process_inputSlots");
++		this.inputSlots = data.getIntArray("process_inputSlots").orElse(new int[0]);
+ 		setInputAmounts(data.getIntArray("process_inputAmounts"));
+ 		setInputTanks(data.getIntArray("process_inputTanks"));
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInWorld.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInWorld.java
+index eb9a160..18d7b25 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInWorld.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/multiblocks/process/MultiblockProcessInWorld.java
+@@ -57,9 +57,9 @@ public class MultiblockProcessInWorld<R extends MultiblockRecipe>
+ 	)
+ 	{
+ 		super(getRecipe, data);
+-		this.inputItems = NonNullList.withSize(data.getInt("numInputs"), ItemStack.EMPTY);
++		this.inputItems = NonNullList.withSize(data.getIntOr("numInputs", 0), ItemStack.EMPTY);
+ 		ContainerHelper.loadAllItems(data, this.inputItems, provider);
+-		this.transformationPoint = data.getFloat("process_transformationPoint");
++		this.transformationPoint = data.getFloatOr("process_transformationPoint", 0F);
+ 	}
+ 
+ 	public MultiblockProcessInWorld(RecipeHolder<R> recipe, ItemStack input)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/stone/CoresampleBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/stone/CoresampleBlockEntity.java
+index 6882cc0..e7b66d1 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/stone/CoresampleBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/stone/CoresampleBlockEntity.java
+@@ -107,7 +107,7 @@ public class CoresampleBlockEntity extends IEBaseBlockEntity implements IStateBa
+ 	{
+ 		if(player.isShiftKeyDown())
+ 		{
+-			if(!level.isClientSide)
++			if(!level.isClientSide())
+ 			{
+ 				ItemEntity entityitem = new ItemEntity(
+ 						level, player.getX(), player.getY(), player.getZ(), makeSampleStack(), 0, 0, 0
+@@ -115,11 +115,11 @@ public class CoresampleBlockEntity extends IEBaseBlockEntity implements IStateBa
+ 				level.removeBlock(worldPosition, false);
+ 				level.addFreshEntity(entityitem);
+ 			}
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		else if(!heldItem.isEmpty()&&heldItem.getItem()==Items.FILLED_MAP)
+ 		{
+-			if(!level.isClientSide)
++			if(!level.isClientSide())
+ 			{
+ 				MapItemSavedData mapData = MapItem.getSavedData(heldItem, player.getCommandSenderWorld());
+ 				if(mapData!=null)
+@@ -127,7 +127,7 @@ public class CoresampleBlockEntity extends IEBaseBlockEntity implements IStateBa
+ 					if(mapData.dimension!=containedSample.position().dimension())
+ 					{
+ 						player.sendSystemMessage(Component.translatable(Lib.CHAT_INFO+"coresample.mapDimension"));
+-						return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++						return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 					}
+ 
+ 					String ident = CORESAMPLE_MAP_PREFIX+containedSample.position().position();
+@@ -168,7 +168,7 @@ public class CoresampleBlockEntity extends IEBaseBlockEntity implements IStateBa
+ 					}
+ 				}
+ 			}
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/FluidSorterBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/FluidSorterBlockEntity.java
+index 4b1e47c..df73171 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/FluidSorterBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/FluidSorterBlockEntity.java
+@@ -71,7 +71,7 @@ public class FluidSorterBlockEntity extends IEBaseBlockEntity implements IIntera
+ 	public int routeFluid(Direction inputSide, FluidStack stack, FluidAction doFill)
+ 	{
+ 		int ret = 0;
+-		if(!level.isClientSide&&canRoute())
++		if(!level.isClientSide()&&canRoute())
+ 		{
+ 			boolean first = startRouting();
+ 			Direction[][] validOutputs = getValidOutputs(inputSide, stack);
+@@ -195,7 +195,7 @@ public class FluidSorterBlockEntity extends IEBaseBlockEntity implements IIntera
+ 		sortWithNBT = nbt.getByteArray("sortWithNBT");
+ 		for(int side = 0; side < 6; side++)
+ 		{
+-			ListTag filterList = nbt.getList("filter_"+side, 10);
++			ListTag filterList = nbt.getListOrEmpty("filter_"+side);
+ 			for(int i = 0; i < filterList.size(); i++)
+ 				filters[side][i] = FluidStack.parseOptional(provider, filterList.getCompound(i));
+ 		}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/ItemBatcherBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/ItemBatcherBlockEntity.java
+index 8c62ba3..752dac6 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/ItemBatcherBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/ItemBatcherBlockEntity.java
+@@ -162,8 +162,8 @@ public class ItemBatcherBlockEntity extends IEBaseBlockEntity implements IEServe
+ 				this.filters.set(i, merged.get(i));
+ 			}
+ 		}
+-		this.batchMode = BatchMode.values()[nbt.getByte("batchMode")];
+-		int[] redstoneConfig = nbt.getIntArray("redstoneColors");
++		this.batchMode = BatchMode.values()[nbt.getByteOr("batchMode", (byte) 0)];
++		int[] redstoneConfig = nbt.getIntArray("redstoneColors").orElse(new int[0]);
+ 		if(redstoneConfig.length >= NUM_SLOTS)
+ 			for(int i = 0; i < NUM_SLOTS; i++)
+ 				this.redstoneColors.set(i, DyeColor.byId(redstoneConfig[i]));
+@@ -192,9 +192,9 @@ public class ItemBatcherBlockEntity extends IEBaseBlockEntity implements IEServe
+ 	public void receiveMessageFromClient(CompoundTag message)
+ 	{
+ 		if(message.contains("batchMode"))
+-			this.batchMode = BatchMode.values()[message.getByte("batchMode")];
++			this.batchMode = BatchMode.values()[message.getByteOr("batchMode", (byte) 0)];
+ 		if(message.contains("redstoneColor_slot")&&message.contains("redstoneColor_val"))
+-			this.redstoneColors.set(message.getInt("redstoneColor_slot"), DyeColor.byId(message.getInt("redstoneColor_val")));
++			this.redstoneColors.set(message.getIntOr("redstoneColor_slot", 0), DyeColor.byId(message.getIntOr("redstoneColor_val", 0)));
+ 	}
+ 
+ 	@Override
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/MachineInterfaceBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/MachineInterfaceBlockEntity.java
+index 38a999a..27512de 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/MachineInterfaceBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/MachineInterfaceBlockEntity.java
+@@ -85,11 +85,11 @@ public class MachineInterfaceBlockEntity extends IEBaseBlockEntity implements IE
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		ListTag list = nbt.getList("configurations", Tag.TAG_COMPOUND);
++		ListTag list = nbt.getListOrEmpty("configurations");
+ 		configurations.clear();
+ 		for(int i = 0; i < list.size(); i++)
+-			configurations.add(MachineInterfaceConfig.readFromNBT(list.getCompound(i)));
+-		inputColor = DyeColor.byId(nbt.getInt("inputColor"));
++			configurations.add(MachineInterfaceConfig.readFromNBT(list.getCompoundOrEmpty(i)));
++		inputColor = DyeColor.byId(nbt.getIntOr("inputColor", 0));
+ 	}
+ 
+ 	@Override
+@@ -106,16 +106,16 @@ public class MachineInterfaceBlockEntity extends IEBaseBlockEntity implements IE
+ 	{
+ 		if(message.contains("configuration"))
+ 		{
+-			int idx = message.getInt("idx");
++			int idx = message.getIntOr("idx", 0);
+ 			if(idx >= this.configurations.size())
+-				this.configurations.add(MachineInterfaceConfig.readFromNBT(message.getCompound("configuration")));
++				this.configurations.add(MachineInterfaceConfig.readFromNBT(message.getCompoundOrEmpty("configuration")));
+ 			else
+-				this.configurations.set(idx, MachineInterfaceConfig.readFromNBT(message.getCompound("configuration")));
++				this.configurations.set(idx, MachineInterfaceConfig.readFromNBT(message.getCompoundOrEmpty("configuration")));
+ 		}
+-		else if(message.getBoolean("delete"))
++		else if(message.getBooleanOr("delete", false))
+ 			this.configurations.remove(message.getInt("idx"));
+ 		else if(message.contains("inputColor"))
+-			this.inputColor = DyeColor.byId(message.getInt("inputColor"));
++			this.inputColor = DyeColor.byId(message.getIntOr("inputColor", 0));
+ 		setChanged();
+ 		this.markContainingBlockForUpdate(null);
+ 	}
+@@ -123,9 +123,9 @@ public class MachineInterfaceBlockEntity extends IEBaseBlockEntity implements IE
+ 	@Override
+ 	public ItemInteractionResult interact(Direction side, Player player, InteractionHand hand, ItemStack heldItem, float hitX, float hitY, float hitZ)
+ 	{
+-		if(getLevelNonnull().isClientSide)
++		if(getLevelNonnull().isClientSide())
+ 			ImmersiveEngineering.proxy.openTileScreen(Lib.GUIID_MachineInterface, this);
+-		return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++		return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 	}
+ 
+ 	@Override
+@@ -218,7 +218,7 @@ public class MachineInterfaceBlockEntity extends IEBaseBlockEntity implements IE
+ 			return new MachineInterfaceConfig<>(
+ 					nbt.getInt("selectedCheck"),
+ 					nbt.getInt("selectedOption"),
+-					DyeColor.byId(nbt.getInt("outputColor"))
++					DyeColor.byId(nbt.getIntOr("outputColor", 0))
+ 			);
+ 		}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/SorterBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/SorterBlockEntity.java
+index c551c22..ab965c6 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/SorterBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/SorterBlockEntity.java
+@@ -97,7 +97,7 @@ public class SorterBlockEntity extends IEBaseBlockEntity implements IInteraction
+ 
+ 	public ItemStack routeItem(Direction inputSide, ItemStack stack, boolean simulate)
+ 	{
+-		if(!level.isClientSide&&canRoute())
++		if(!level.isClientSide()&&canRoute())
+ 		{
+ 			boolean first = startRouting();
+ 			TransferPaths paths = getValidOutputs(inputSide, stack);
+@@ -177,7 +177,7 @@ public class SorterBlockEntity extends IEBaseBlockEntity implements IInteraction
+ 
+ 	public ItemStack pullItem(Direction outputSide, int amount, boolean simulate)
+ 	{
+-		if(!level.isClientSide&&canRoute())
++		if(!level.isClientSide()&&canRoute())
+ 		{
+ 			boolean first = startRouting();
+ 			for(Direction side : Direction.values())
+@@ -299,7 +299,7 @@ public class SorterBlockEntity extends IEBaseBlockEntity implements IInteraction
+ 		sideFilter = FILTER_CODEC.fromNBT(nbt.get("sideFilter"));
+ 		if(!descPacket)
+ 		{
+-			ListTag filterList = nbt.getList("filter", 10);
++			ListTag filterList = nbt.getListOrEmpty("filter");
+ 			filter = new SorterInventory();
+ 			filter.readFromNBT(provider, filterList);
+ 		}
+@@ -482,7 +482,7 @@ public class SorterBlockEntity extends IEBaseBlockEntity implements IInteraction
+ 		{
+ 			for(int i = 0; i < list.size(); i++)
+ 			{
+-				CompoundTag slotTag = list.getCompound(i);
++				CompoundTag slotTag = list.getCompoundOrEmpty(i);
+ 				int slot = slotTag.getByte("Slot")&255;
+ 				if(slot < getSlots())
+ 				{
+@@ -607,10 +607,10 @@ public class SorterBlockEntity extends IEBaseBlockEntity implements IInteraction
+ 		public static FilterTag readFromNbt(CompoundTag slotTag, ItemStack stack)
+ 		{
+ 			if(slotTag.contains("selectedMod"))
+-				return new FilterTag(Either.right(slotTag.getString("selectedMod")));
++				return new FilterTag(Either.right(slotTag.getStringOr("selectedMod", "")));
+ 			if(slotTag.contains("selectedTag"))
+ 			{
+-				Identifier rl = Identifier.parse(slotTag.getString("selectedTag"));
++				Identifier rl = Identifier.parse(slotTag.getStringOr("selectedTag", ""));
+ 				return stack.getTags()
+ 						.filter(t -> t.location().equals(rl))
+ 						.findFirst()
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WatermillBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WatermillBlockEntity.java
+index 6fe3971..2817094 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WatermillBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WatermillBlockEntity.java
+@@ -382,9 +382,9 @@ public class WatermillBlockEntity extends IEBaseBlockEntity implements IEServerT
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		offset = nbt.getIntArray("offset");
+-		rotation = nbt.getDouble("rotation");
+-		speed = nbt.getDouble("speed");
++		offset = nbt.getIntArray("offset").orElse(new int[0]);
++		rotation = nbt.getDoubleOr("rotation", 0D);
++		speed = nbt.getDoubleOr("speed", 0D);
+ 
+ 		if(offset==null||offset.length < 2)
+ 			offset = new int[]{0, 0};
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WindmillBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WindmillBlockEntity.java
+index 731ab38..1d21fce 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WindmillBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WindmillBlockEntity.java
+@@ -179,9 +179,9 @@ public class WindmillBlockEntity extends IEBaseBlockEntity implements IEServerTi
+ 	@Override
+ 	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+ 	{
+-		sails = nbt.getInt("sails");
+-		rotation = nbt.getFloat("rotation");
+-		turnSpeed = nbt.getFloat("turnSpeed");
++		sails = nbt.getIntOr("sails", 0);
++		rotation = nbt.getFloatOr("rotation", 0F);
++		turnSpeed = nbt.getFloatOr("turnSpeed", 0F);
+ 	}
+ 
+ 	@Override
+@@ -227,7 +227,7 @@ public class WindmillBlockEntity extends IEBaseBlockEntity implements IEServerTi
+ 			if(!player.getAbilities().instabuild)
+ 				heldItem.shrink(1);
+ 			this.setChanged();
+-			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide);
++			return ItemInteractionResult.sidedSuccess(getLevelNonnull().isClientSide());
+ 		}
+ 		return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WoodenCrateBlockEntity.java b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WoodenCrateBlockEntity.java
+index f876970..7213ff9 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WoodenCrateBlockEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/blocks/wooden/WoodenCrateBlockEntity.java
+@@ -88,7 +88,7 @@ public class WoodenCrateBlockEntity extends RandomizableContainerBlockEntity
+ 			this.enchantments = ItemEnchantments.EMPTY;
+ 		if(!tryLoadLootTable(nbt))
+ 			ContainerHelper.loadAllItems(nbt, inventory, provider);
+-		this.sealingProgress = nbt.getInt("sealingProgress");
++		this.sealingProgress = nbt.getIntOr("sealingProgress", 0);
+ 	}
+ 
+ 	@Override
+@@ -115,7 +115,7 @@ public class WoodenCrateBlockEntity extends RandomizableContainerBlockEntity
+ 	public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt, Provider access)
+ 	{
+ 		CompoundTag nonNullTag = pkt.getTag()!=null?pkt.getTag(): new CompoundTag();
+-		if(nonNullTag.contains("CustomName", 8))
++		if(nonNullTag.contains("CustomName"))
+ 		{
+ 			Component customName = Component.Serializer.fromJson(nonNullTag.getString("CustomName"), access);
+ 			if(customName!=null)
+@@ -267,7 +267,7 @@ public class WoodenCrateBlockEntity extends RandomizableContainerBlockEntity
+ 					player.displayClientMessage(Component.translatable(Lib.CHAT_INFO+"crate_sealed"), true);
+ 				player.playSound(SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR);
+ 				player.getCooldowns().addCooldown(heldItem.getItem(), 10);
+-				return ItemInteractionResult.sidedSuccess(Objects.requireNonNull(getLevel()).isClientSide);
++				return ItemInteractionResult.sidedSuccess(Objects.requireNonNull(getLevel()).isClientSide());
+ 			}
+ 			return ItemInteractionResult.FAIL;
+ 		}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/entities/IEProjectileEntity.java b/src/main/java/blusunrize/immersiveengineering/common/entities/IEProjectileEntity.java
+index f697947..90d126b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/entities/IEProjectileEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/entities/IEProjectileEntity.java
+@@ -170,7 +170,7 @@ public abstract class IEProjectileEntity extends AbstractArrow//Yes I have to ex
+ 	@Override
+ 	public void playerTouch(Player player)
+ 	{
+-		if(!this.level().isClientSide&&(this.inGround||this.isNoPhysics())&&this.shakeTime <= 0)
++		if(!this.level().isClientSide()&&(this.inGround||this.isNoPhysics())&&this.shakeTime <= 0)
+ 		{
+ 			boolean flag = this.pickup==AbstractArrow.Pickup.ALLOWED
+ 					||this.pickup==AbstractArrow.Pickup.CREATIVE_ONLY&&player.getAbilities().instabuild
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/entities/RailgunShotEntity.java b/src/main/java/blusunrize/immersiveengineering/common/entities/RailgunShotEntity.java
+index aaec6a0..9df04ba 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/entities/RailgunShotEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/entities/RailgunShotEntity.java
+@@ -110,7 +110,7 @@ public class RailgunShotEntity extends IEProjectileEntity
+ 	@Override
+ 	public void baseTick()
+ 	{
+-		if(this.getAmmo().isEmpty()&&this.level().isClientSide)
++		if(this.getAmmo().isEmpty()&&this.level().isClientSide())
+ 			this.ammo = getAmmoSynced();
+ 		super.baseTick();
+ 	}
+@@ -118,7 +118,7 @@ public class RailgunShotEntity extends IEProjectileEntity
+ 	@Override
+ 	protected void onHitEntity(EntityHitResult result)
+ 	{
+-		if(!this.level().isClientSide&&!getAmmo().isEmpty())
++		if(!this.level().isClientSide()&&!getAmmo().isEmpty())
+ 		{
+ 			IRailgunProjectile projectileProperties = getProjectileProperties();
+ 			if(projectileProperties!=null)
+@@ -143,7 +143,7 @@ public class RailgunShotEntity extends IEProjectileEntity
+ 	protected void onHitBlock(BlockHitResult result)
+ 	{
+ 		super.onHitBlock(result);
+-		if(!this.level().isClientSide&&!getAmmo().isEmpty())
++		if(!this.level().isClientSide()&&!getAmmo().isEmpty())
+ 		{
+ 			IRailgunProjectile projectileProperties = getProjectileProperties();
+ 			if(projectileProperties!=null)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/entities/RevolvershotEntity.java b/src/main/java/blusunrize/immersiveengineering/common/entities/RevolvershotEntity.java
+index a26e278..8f30b6e 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/entities/RevolvershotEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/entities/RevolvershotEntity.java
+@@ -119,7 +119,7 @@ public class RevolvershotEntity extends IEProjectileEntity
+ 
+ 	public BulletData<?> getBullet()
+ 	{
+-		if(level().isClientSide)
++		if(level().isClientSide())
+ 			return entityData.get(DATAMARKER_BULLET);
+ 		else
+ 			return bullet;
+@@ -154,7 +154,7 @@ public class RevolvershotEntity extends IEProjectileEntity
+ 				}
+ 			}
+ 		}
+-		if(!this.level().isClientSide)
++		if(!this.level().isClientSide())
+ 			this.secondaryImpact(mop);
+ 		if(mop instanceof BlockHitResult)
+ 			this.onHitBlock((BlockHitResult)mop);
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/entities/SawbladeEntity.java b/src/main/java/blusunrize/immersiveengineering/common/entities/SawbladeEntity.java
+index 99fb25e..2c7c83a 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/entities/SawbladeEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/entities/SawbladeEntity.java
+@@ -104,7 +104,7 @@ public class SawbladeEntity extends IEProjectileEntity
+ 	@Override
+ 	public void baseTick()
+ 	{
+-		if(this.getAmmo().isEmpty()&&this.level().isClientSide)
++		if(this.getAmmo().isEmpty()&&this.level().isClientSide())
+ 			this.ammo = getAmmoSynced();
+ 		super.baseTick();
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/entities/SkylineHookEntity.java b/src/main/java/blusunrize/immersiveengineering/common/entities/SkylineHookEntity.java
+index a021503..0c75e2c 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/entities/SkylineHookEntity.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/entities/SkylineHookEntity.java
+@@ -149,7 +149,7 @@ public class SkylineHookEntity extends Entity
+ 	@Override
+ 	public void tick()
+ 	{
+-		if(tickCount==1&&level().isClientSide)
++		if(tickCount==1&&level().isClientSide())
+ 			ImmersiveEngineering.proxy.startSkyhookSound(this);
+ 		Player player = null;
+ 		List<Entity> list = this.getPassengers();
+@@ -157,12 +157,12 @@ public class SkylineHookEntity extends Entity
+ 			player = (Player)list.get(0);
+ 		if(connection==null||player==null||(hand!=null&&player.getItemInHand(hand).getItem()!=Misc.SKYHOOK.asItem()))
+ 		{
+-			if(!level().isClientSide)
++			if(!level().isClientSide())
+ 				discard();
+ 			return;
+ 		}
+ 		//TODO figure out how to get the speed keeping on dismount working with less sync packets
+-		if(this.tickCount%5==0&&!level().isClientSide)
++		if(this.tickCount%5==0&&!level().isClientSide())
+ 			sendUpdatePacketTo(player);
+ 		PlayerUtils.resetFloatingState(player);
+ 		boolean moved = false;
+@@ -446,7 +446,7 @@ public class SkylineHookEntity extends Entity
+ 	@Override
+ 	protected void readAdditionalSaveData(CompoundTag nbt)
+ 	{
+-		this.slopeModifier = nbt.getFloat("slopeModifier");
++		this.slopeModifier = nbt.getFloatOr("slopeModifier", 0F);
+ 		this.setSlopeModifier(this.slopeModifier);
+ 	}
+ 
+@@ -498,7 +498,7 @@ public class SkylineHookEntity extends Entity
+ 	protected void removePassenger(Entity passenger)
+ 	{
+ 		super.removePassenger(passenger);
+-		if(!level().isClientSide)
++		if(!level().isClientSide())
+ 			ApiUtils.addFutureServerTask(level(), () -> handleDismount(passenger));
+ 		else
+ 			//TODO is this still needed?
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/AssemblerMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/AssemblerMenu.java
+index c99e1c6..083e26d 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/AssemblerMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/AssemblerMenu.java
+@@ -166,9 +166,9 @@ public class AssemblerMenu extends IEContainerMenu
+ 	public void receiveMessageFromScreen(CompoundTag nbt)
+ 	{
+ 		super.receiveMessageFromScreen(nbt);
+-		if(nbt.contains("buttonID", Tag.TAG_INT))
++		if(nbt.contains("buttonID"))
+ 		{
+-			int id = nbt.getInt("buttonID");
++			int id = nbt.getIntOr("buttonID", 0);
+ 			if(id >= 0&&id < patterns.size())
+ 			{
+ 				IItemHandlerModifiable pattern = patterns.get(id);
+@@ -178,14 +178,14 @@ public class AssemblerMenu extends IEContainerMenu
+ 			else if(id==3)
+ 				recursiveIngredients.set(!recursiveIngredients.get());
+ 		}
+-		else if(nbt.contains("patternSync", Tag.TAG_INT))
++		else if(nbt.contains("patternSync"))
+ 		{
+-			int r = nbt.getInt("recipe");
+-			ListTag list = nbt.getList("patternSync", 10);
++			int r = nbt.getIntOr("recipe", 0);
++			ListTag list = nbt.getListOrEmpty("patternSync");
+ 			IItemHandlerModifiable pattern = patterns.get(r);
+ 			for(int i = 0; i < list.size(); i++)
+ 			{
+-				CompoundTag itemTag = list.getCompound(i);
++				CompoundTag itemTag = list.getCompoundOrEmpty(i);
+ 				pattern.setStackInSlot(
+ 						itemTag.getInt("slot"),
+ 						ItemStack.parseOptional(Minecraft.getInstance().level.registryAccess(), itemTag)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/AutoWorkbenchMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/AutoWorkbenchMenu.java
+index db2b8a6..ca19172 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/AutoWorkbenchMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/AutoWorkbenchMenu.java
+@@ -151,7 +151,7 @@ public class AutoWorkbenchMenu extends IEContainerMenu
+ 	@Override
+ 	public void receiveMessageFromScreen(CompoundTag nbt)
+ 	{
+-		if(nbt.contains("recipe", Tag.TAG_INT))
+-			this.selectedRecipe.set(nbt.getInt("recipe"));
++		if(nbt.contains("recipe"))
++			this.selectedRecipe.set(nbt.getIntOr("recipe", 0));
+ 	}
+ }
+\ No newline at end of file
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/CrateMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/CrateMenu.java
+index c437e7b..28ffea4 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/CrateMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/CrateMenu.java
+@@ -62,7 +62,7 @@ public class CrateMenu extends AbstractContainerMenu implements IScreenMessageRe
+ 	{
+ 		if(container instanceof WoodenCrateBlockEntity crate)
+ 		{
+-			crate.setCustomName(Component.literal(nbt.getString("name")));
++			crate.setCustomName(Component.literal(nbt.getStringOr("name", "")));
+ 			crate.doGraphicalUpdates();
+ 		}
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/FluidSorterMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/FluidSorterMenu.java
+index 409274d..e03dd89 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/FluidSorterMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/FluidSorterMenu.java
+@@ -75,18 +75,18 @@ public class FluidSorterMenu extends IEContainerMenu
+ 	@Override
+ 	public void receiveMessageFromScreen(CompoundTag message)
+ 	{
+-		if(message.contains("useNBT", Tag.TAG_INT))
++		if(message.contains("useNBT"))
+ 		{
+-			byte config = message.getByte("useNBT");
+-			int side = message.getInt("side");
++			byte config = message.getByteOr("useNBT", (byte) 0);
++			int side = message.getIntOr("side", 0);
+ 			this.sortWithNBT.get()[side] = config;
+ 		}
+-		if(message.contains("filter_side", Tag.TAG_INT))
++		if(message.contains("filter_side"))
+ 		{
+ 			var currentServer = ServerLifecycleHooks.getCurrentServer();
+ 			if(null == currentServer) return;
+-			int side = message.getInt("filter_side");
+-			int slot = message.getInt("filter_slot");
++			int side = message.getIntOr("filter_side", 0);
++			int slot = message.getIntOr("filter_slot", 0);
+ 			FluidStack newFilter = FluidStack.parseOptional(currentServer.registryAccess(), message.getCompound("filter"));
+ 			if(!newFilter.isEmpty())
+ 				newFilter.setAmount(1); // Not strictly necessary, but also doesn't hurt
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/IESlot.java b/src/main/java/blusunrize/immersiveengineering/common/gui/IESlot.java
+index db854ba..43a65b3 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/IESlot.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/IESlot.java
+@@ -305,7 +305,7 @@ public abstract class IESlot extends Slot
+ 		@Override
+ 		public void onTake(Player thePlayer, ItemStack stack)
+ 		{
+-			if(!world.isClientSide)
++			if(!world.isClientSide())
+ 				upgradeableTool.removeUpgrade(toolStack, thePlayer, stack);
+ 			super.onTake(thePlayer, stack);
+ 		}
+@@ -314,7 +314,7 @@ public abstract class IESlot extends Slot
+ 		public void setChanged()
+ 		{
+ 			super.setChanged();
+-			if(!world.isClientSide)
++			if(!world.isClientSide())
+ 			{
+ 				upgradeableTool.recalculateUpgrades(toolStack, world, getPlayer.get());
+ 				if(container instanceof ModWorkbenchContainer)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/ItemBatcherMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/ItemBatcherMenu.java
+index faf91f4..3bb065d 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/ItemBatcherMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/ItemBatcherMenu.java
+@@ -132,12 +132,12 @@ public class ItemBatcherMenu extends IEContainerMenu
+ 	public void receiveMessageFromScreen(CompoundTag nbt)
+ 	{
+ 		super.receiveMessageFromScreen(nbt);
+-		if(nbt.contains("batchMode", Tag.TAG_BYTE))
+-			batchMode.set((int)nbt.getByte("batchMode"));
+-		if(nbt.contains("redstoneColor_slot", Tag.TAG_INT))
++		if(nbt.contains("batchMode"))
++			batchMode.set((int)nbt.getByteOr("batchMode", (byte) 0));
++		if(nbt.contains("redstoneColor_slot"))
+ 		{
+-			final int slot = nbt.getInt("redstoneColor_slot");
+-			final int newValue = nbt.getInt("redstoneColor_val");
++			final int slot = nbt.getIntOr("redstoneColor_slot", 0);
++			final int newValue = nbt.getIntOr("redstoneColor_val", 0);
+ 			colors.get(slot).set(newValue);
+ 		}
+ 	}
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/MaintenanceKitContainer.java b/src/main/java/blusunrize/immersiveengineering/common/gui/MaintenanceKitContainer.java
+index daebf42..7441521 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/MaintenanceKitContainer.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/MaintenanceKitContainer.java
+@@ -68,7 +68,7 @@ public class MaintenanceKitContainer extends ItemContainer
+ 			wasUsed = true;
+ 			IItemHandler toolInv = Objects.requireNonNull(tool.getCapability(ItemHandler.ITEM));
+ 			Slot[] slots = upgradeableTool.getWorkbenchSlots(
+-					this, tool, world, () -> player, world.isClientSide?clientInventory: toolInv
++					this, tool, world, () -> player, world.isClientSide()?clientInventory: toolInv
+ 			);
+ 			if(slots!=null)
+ 				for(Slot s : slots)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/MixerMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/MixerMenu.java
+index 19f9045..dc3e3ab 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/MixerMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/MixerMenu.java
+@@ -126,8 +126,8 @@ public class MixerMenu extends IEContainerMenu implements IESlot.ICallbackContai
+ 	@Override
+ 	public void receiveMessageFromScreen(CompoundTag nbt)
+ 	{
+-		if(nbt.contains("outputAll", Tag.TAG_BYTE))
+-			outputAll.set(nbt.getBoolean("outputAll"));
++		if(nbt.contains("outputAll"))
++			outputAll.set(nbt.getBooleanOr("outputAll", false));
+ 	}
+ 
+ 	public record SlotProgress(int slot, float progress)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/ModWorkbenchContainer.java b/src/main/java/blusunrize/immersiveengineering/common/gui/ModWorkbenchContainer.java
+index 6a6cc32..6df440e 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/ModWorkbenchContainer.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/ModWorkbenchContainer.java
+@@ -82,7 +82,7 @@ public class ModWorkbenchContainer extends IEBaseContainerOld<ModWorkbenchBlockE
+ 			// "empty" tool to the client, so if the slots use the tool inventory the behavior become highly dependent
+ 			// on slot update order
+ 			Slot[] slots = upgradeableTool.getWorkbenchSlots(
+-					this, tool, world, () -> inventoryPlayer.player, world.isClientSide?clientInventory: toolInv
++					this, tool, world, () -> inventoryPlayer.player, world.isClientSide()?clientInventory: toolInv
+ 			);
+ 			if(slots!=null)
+ 				for(Slot s : slots)
+@@ -222,7 +222,7 @@ public class ModWorkbenchContainer extends IEBaseContainerOld<ModWorkbenchBlockE
+ 	{
+ 		super.clicked(id, dragType, clickType, player);
+ 		tile.markContainingBlockForUpdate(null);
+-		if(!world.isClientSide)
++		if(!world.isClientSide())
+ 			broadcastChanges();
+ 	}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/RadioTowerMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/RadioTowerMenu.java
+index 175fb98..cd83f03 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/RadioTowerMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/RadioTowerMenu.java
+@@ -96,10 +96,10 @@ public class RadioTowerMenu extends IEContainerMenu
+ 	@Override
+ 	public void receiveMessageFromScreen(CompoundTag nbt)
+ 	{
+-		if(nbt.contains("frequency", Tag.TAG_INT))
+-			this.frequency.set(nbt.getInt("frequency"));
+-		if(nbt.contains("savedFrequencies", Tag.TAG_INT_ARRAY))
+-			this.savedFrequencies.set(nbt.getIntArray("savedFrequencies"));
++		if(nbt.contains("frequency"))
++			this.frequency.set(nbt.getIntOr("frequency", 0));
++		if(nbt.contains("savedFrequencies"))
++			this.savedFrequencies.set(nbt.getIntArray("savedFrequencies").orElse(new int[0]));
+ 		this.markDirty.run();
+ 	}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/ShelfMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/ShelfMenu.java
+index acf7336..08afacf 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/ShelfMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/ShelfMenu.java
+@@ -114,8 +114,8 @@ public class ShelfMenu extends IEContainerMenu
+ 	public void receiveMessageFromScreen(CompoundTag nbt)
+ 	{
+ 		super.receiveMessageFromScreen(nbt);
+-		if(nbt.contains("backside", Tag.TAG_BYTE))
+-			backside.set(nbt.getBoolean("backside"));
++		if(nbt.contains("backside"))
++			backside.set(nbt.getBooleanOr("backside", false));
+ 	}
+ 
+ 	@Nonnull
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/SorterMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/SorterMenu.java
+index 2dcdf62..295063b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/SorterMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/SorterMenu.java
+@@ -103,15 +103,15 @@ public class SorterMenu extends IEContainerMenu
+ 	@Override
+ 	public void receiveMessageFromScreen(CompoundTag message)
+ 	{
+-		if(message.contains("sideConfigId", Tag.TAG_INT))
++		if(message.contains("sideConfigId"))
+ 		{
+ 			var filter = FilterConfig.CODEC.fromNBT(message.get("sideConfigVal"));
+-			filterMasks.get(Direction.values()[message.getInt("sideConfigId")]).set(filter);
++			filterMasks.get(Direction.values()[message.getIntOr("sideConfigId", 0)]).set(filter);
+ 		}
+-		else if(message.contains("tagSlot", Tag.TAG_INT))
++		else if(message.contains("tagSlot"))
+ 		{
+-			var selected = Identifier.parse(message.getString("selectedTag"));
+-			selectedTags.get(message.getInt("tagSlot")).set(Optional.of(selected));
++			var selected = Identifier.parse(message.getStringOr("selectedTag", ""));
++			selectedTags.get(message.getIntOr("tagSlot", 0)).set(Optional.of(selected));
+ 		}
+ 	}
+ }
+\ No newline at end of file
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/gui/TurretMenu.java b/src/main/java/blusunrize/immersiveengineering/common/gui/TurretMenu.java
+index 47b2ede..1d50395 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/gui/TurretMenu.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/gui/TurretMenu.java
+@@ -108,18 +108,18 @@ public abstract class TurretMenu extends IEContainerMenu
+ 	@Override
+ 	public void receiveMessageFromScreen(CompoundTag nbt)
+ 	{
+-		if(nbt.contains("add", Tag.TAG_STRING))
+-			data.targetList.get().add(nbt.getString("add"));
+-		if(nbt.contains("remove", Tag.TAG_INT))
++		if(nbt.contains("add"))
++			data.targetList.get().add(nbt.getStringOr("add", ""));
++		if(nbt.contains("remove"))
+ 			data.targetList.get().remove(nbt.getInt("remove"));
+-		if(nbt.contains("whitelist", Tag.TAG_BYTE))
+-			data.whitelist.set(nbt.getBoolean("whitelist"));
+-		if(nbt.contains("attackAnimals", Tag.TAG_BYTE))
+-			data.attackAnimals.set(nbt.getBoolean("attackAnimals"));
+-		if(nbt.contains("attackPlayers", Tag.TAG_BYTE))
+-			data.attackPlayers.set(nbt.getBoolean("attackPlayers"));
+-		if(nbt.contains("attackNeutrals", Tag.TAG_BYTE))
+-			data.attackNeutrals.set(nbt.getBoolean("attackNeutrals"));
++		if(nbt.contains("whitelist"))
++			data.whitelist.set(nbt.getBooleanOr("whitelist", false));
++		if(nbt.contains("attackAnimals"))
++			data.attackAnimals.set(nbt.getBooleanOr("attackAnimals", false));
++		if(nbt.contains("attackPlayers"))
++			data.attackPlayers.set(nbt.getBooleanOr("attackPlayers", false));
++		if(nbt.contains("attackNeutrals"))
++			data.attackNeutrals.set(nbt.getBooleanOr("attackNeutrals", false));
+ 		data.afterChange.run();
+ 	}
+ 
+@@ -159,8 +159,8 @@ public abstract class TurretMenu extends IEContainerMenu
+ 		public void receiveMessageFromScreen(CompoundTag nbt)
+ 		{
+ 			super.receiveMessageFromScreen(nbt);
+-			if(nbt.contains("ignite", Tag.TAG_BYTE))
+-				ignite.set(nbt.getBoolean("ignite"));
++			if(nbt.contains("ignite"))
++				ignite.set(nbt.getBooleanOr("ignite", false));
+ 		}
+ 	}
+ 
+@@ -210,8 +210,8 @@ public abstract class TurretMenu extends IEContainerMenu
+ 		public void receiveMessageFromScreen(CompoundTag nbt)
+ 		{
+ 			super.receiveMessageFromScreen(nbt);
+-			if(nbt.contains("expelCasings", Tag.TAG_BYTE))
+-				expelCasings.set(nbt.getBoolean("expelCasings"));
++			if(nbt.contains("expelCasings"))
++				expelCasings.set(nbt.getBooleanOr("expelCasings", false));
+ 		}
+ 	}
+ }
+\ No newline at end of file
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/items/ChemthrowerItem.java b/src/main/java/blusunrize/immersiveengineering/common/items/ChemthrowerItem.java
+index 069e3e9..e815023 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/items/ChemthrowerItem.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/items/ChemthrowerItem.java
+@@ -109,7 +109,7 @@ public class ChemthrowerItem extends UpgradeableToolItem implements IAdvancedFlu
+ 		ItemStack stack = player.getItemInHand(hand);
+ 		if(player.isShiftKeyDown())
+ 		{
+-			if(!world.isClientSide)
++			if(!world.isClientSide())
+ 				setIgniteEnable(stack, !isIgniteEnable(stack));
+ 		}
+ 		else
+@@ -153,7 +153,7 @@ public class ChemthrowerItem extends UpgradeableToolItem implements IAdvancedFlu
+ 						player.setDeltaMovement(player.getDeltaMovement().subtract(vecDir.scale(0.0025*range)));
+ 					if(ignite)
+ 						chem.igniteForSeconds(10);
+-					if(!player.level().isClientSide)
++					if(!player.level().isClientSide())
+ 						player.level().addFreshEntity(chem);
+ 				}
+ 				if(remainingUseDuration%4==0)
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/items/FluorescentTubeItem.java b/src/main/java/blusunrize/immersiveengineering/common/items/FluorescentTubeItem.java
+index 044256a..e739664 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/items/FluorescentTubeItem.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/items/FluorescentTubeItem.java
+@@ -59,7 +59,7 @@ public class FluorescentTubeItem extends IEBaseItem implements IConfigurableTool
+ 		Player player = ctx.getPlayer();
+ 		if(side==Direction.UP&&player!=null)
+ 		{
+-			if(!world.isClientSide)
++			if(!world.isClientSide())
+ 			{
+ 				ItemStack stack = ctx.getItemInHand();
+ 				Vec3 look = player.getLookAngle();
+@@ -186,7 +186,7 @@ public class FluorescentTubeItem extends IEBaseItem implements IConfigurableTool
+ 	{
+ 		super.inventoryTick(stack, worldIn, entityIn, itemSlot, isSelected);
+ 		var state = stack.get(IEDataComponents.FLUORESCENT_TUBE_LIT);
+-		if(!worldIn.isClientSide&&state!=null)
++		if(!worldIn.isClientSide()&&state!=null)
+ 		{
+ 			if(state.time > 1)
+ 				stack.set(IEDataComponents.FLUORESCENT_TUBE_LIT, new LitState(state.strength, state.time-1));
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/items/HammerItem.java b/src/main/java/blusunrize/immersiveengineering/common/items/HammerItem.java
+index 9c7eadc..9b4781f 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/items/HammerItem.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/items/HammerItem.java
+@@ -179,7 +179,7 @@ public class HammerItem extends IEBaseItem
+ 		List<Identifier> result = new ArrayList<>();
+ 		for(int i = 0; i < data.size(); ++i)
+ 		{
+-			String listEntry = data.getString(i);
++			String listEntry = data.getStringOr(i, "");
+ 			Identifier asRL = Identifier.tryParse(listEntry);
+ 			if(asRL==null||MultiblockHandler.getByUniqueName(asRL)==null)
+ 			{
+@@ -245,7 +245,7 @@ public class HammerItem extends IEBaseItem
+ 	@Override
+ 	public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity entity, InteractionHand hand)
+ 	{
+-		if(!player.level().isClientSide&&RotationUtil.rotateEntity(entity, player))
++		if(!player.level().isClientSide()&&RotationUtil.rotateEntity(entity, player))
+ 			return InteractionResult.SUCCESS;
+ 		else
+ 			return InteractionResult.PASS;
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/items/UpgradeableToolItem.java b/src/main/java/blusunrize/immersiveengineering/common/items/UpgradeableToolItem.java
+index 0fc9bec..76abec2 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/items/UpgradeableToolItem.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/items/UpgradeableToolItem.java
+@@ -61,7 +61,7 @@ public abstract class UpgradeableToolItem extends InternalStorageItem implements
+ 	@Override
+ 	public void recalculateUpgrades(ItemStack stack, Level w, Player player)
+ 	{
+-		if(w.isClientSide)
++		if(w.isClientSide())
+ 			return;
+ 		clearUpgrades(stack);
+ 		IItemHandler inv = stack.getCapability(ItemHandler.ITEM);
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/util/WorldMap.java b/src/main/java/blusunrize/immersiveengineering/common/util/WorldMap.java
+index a960270..181d61b 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/util/WorldMap.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/util/WorldMap.java
+@@ -23,7 +23,7 @@ public class WorldMap<Key, Value>
+ 	@Nullable
+ 	public Value get(Level world, Key key)
+ 	{
+-		Preconditions.checkArgument(!world.isClientSide);
++		Preconditions.checkArgument(!world.isClientSide());
+ 		final Map<Key, Value> worldMap = map.get(world.dimension());
+ 		if(worldMap==null)
+ 			return null;
+@@ -32,14 +32,14 @@ public class WorldMap<Key, Value>
+ 
+ 	public void put(Level world, Key key, Value value)
+ 	{
+-		Preconditions.checkArgument(!world.isClientSide);
++		Preconditions.checkArgument(!world.isClientSide());
+ 		final Map<Key, Value> worldMap = map.computeIfAbsent(world.dimension(), $ -> new HashMap<>());
+ 		worldMap.put(key, value);
+ 	}
+ 
+ 	public void clearDimension(Level world)
+ 	{
+-		Preconditions.checkArgument(!world.isClientSide);
++		Preconditions.checkArgument(!world.isClientSide());
+ 		map.remove(world.dimension());
+ 	}
+ 
+diff --git a/src/main/java/blusunrize/immersiveengineering/common/util/inventory/MultiFluidTank.java b/src/main/java/blusunrize/immersiveengineering/common/util/inventory/MultiFluidTank.java
+index 2802dc4..7a0891f 100644
+--- a/src/main/java/blusunrize/immersiveengineering/common/util/inventory/MultiFluidTank.java
++++ b/src/main/java/blusunrize/immersiveengineering/common/util/inventory/MultiFluidTank.java
+@@ -37,10 +37,10 @@ public class MultiFluidTank implements IFluidTank, IFluidHandler
+ 
+ 	public MultiFluidTank readFromNBT(CompoundTag nbt, Provider provider)
+ 	{
+-		if(nbt.contains("fluids", Tag.TAG_LIST))
++		if(nbt.contains("fluids"))
+ 		{
+ 			fluids.clear();
+-			ListTag tagList = nbt.getList("fluids", Tag.TAG_COMPOUND);
++			ListTag tagList = nbt.getListOrEmpty("fluids");
+ 			for(int i = 0; i < tagList.size(); i++)
+ 			{
+ 				FluidStack fs = FluidStack.parseOptional(provider, tagList.getCompound(i));
