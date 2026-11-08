@@ -1,0 +1,82 @@
+{
+  "parent": "minecraft:block/block",
+  "textures": {
+    "end": "minecraft:block/oak_log_top",
+    "log": "minecraft:block/oak_log",
+    "particle": "minecraft:block/oak_log"
+  },
+  "elements": [
+    {
+      "from": [1, 0, 2],
+      "to": [15, 4, 6],
+      "faces": {
+        "down": {"texture": "#log"},
+        "up": {"texture": "#log"},
+        "north": {"texture": "#log"},
+        "south": {"texture": "#log"},
+        "west": {"texture": "#end"},
+        "east": {"texture": "#end"}
+      }
+    },
+    {
+      "from": [1, 0, 10],
+      "to": [15, 4, 14],
+      "faces": {
+        "down": {"texture": "#log"},
+        "up": {"texture": "#log"},
+        "north": {"texture": "#log"},
+        "south": {"texture": "#log"},
+        "west": {"texture": "#end"},
+        "east": {"texture": "#end"}
+      }
+    },
+    {
+      "from": [2, 5, 1],
+      "to": [6, 9, 15],
+      "faces": {
+        "down": {"texture": "#log"},
+        "up": {"texture": "#log"},
+        "north": {"texture": "#end"},
+        "south": {"texture": "#end"},
+        "west": {"texture": "#log"},
+        "east": {"texture": "#log"}
+      }
+    },
+    {
+      "from": [10, 5, 1],
+      "to": [14, 9, 15],
+      "faces": {
+        "down": {"texture": "#log"},
+        "up": {"texture": "#log"},
+        "north": {"texture": "#end"},
+        "south": {"texture": "#end"},
+        "west": {"texture": "#log"},
+        "east": {"texture": "#log"}
+      }
+    },
+    {
+      "from": [3, 10, 3],
+      "to": [13, 14, 7],
+      "faces": {
+        "down": {"texture": "#log"},
+        "up": {"texture": "#log"},
+        "north": {"texture": "#log"},
+        "south": {"texture": "#log"},
+        "west": {"texture": "#end"},
+        "east": {"texture": "#end"}
+      }
+    },
+    {
+      "from": [3, 10, 9],
+      "to": [13, 14, 13],
+      "faces": {
+        "down": {"texture": "#log"},
+        "up": {"texture": "#log"},
+        "north": {"texture": "#log"},
+        "south": {"texture": "#log"},
+        "west": {"texture": "#end"},
+        "east": {"texture": "#end"}
+      }
+    }
+  ]
+}

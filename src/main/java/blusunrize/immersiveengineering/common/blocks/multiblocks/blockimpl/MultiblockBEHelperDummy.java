@@ -1,0 +1,151 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2023
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.blocks.multiblocks.blockimpl;
+
+import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistration;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockBEHelperDummy;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockBEHelperMaster;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockContext;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.registry.MultiblockBlockEntityMaster;
+import com.google.common.base.Preconditions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import javax.annotation.Nullable;
+import java.util.function.Function;
+
+public class MultiblockBEHelperDummy<State extends IMultiblockState>
+		extends MultiblockBEHelperCommon<State>
+		implements IMultiblockBEHelperDummy<State>
+{
+	private final MultiblockLevel level;
+	private BlockPos positionInMB;
+
+	public MultiblockBEHelperDummy(BlockEntity be, MultiblockRegistration<State> multiblock)
+	{
+		super(be, multiblock, be.getBlockState());
+		this.level = new MultiblockLevel(be::getLevel, orientation, () -> {
+			final BlockPos absoluteOffset = orientation.getAbsoluteOffset(positionInMB);
+			return be.getBlockPos().subtract(absoluteOffset);
+		});
+		this.positionInMB = BlockPos.ZERO;
+	}
+
+	@Nullable
+	public State getState()
+	{
+		return getOnMaster(IMultiblockBEHelperMaster::getState);
+	}
+
+	@Nullable
+	public IMultiblockContext<State> getContext()
+	{
+		return getOnMaster(IMultiblockBEHelperMaster::getContext);
+	}
+
+	@Nullable
+	protected IMultiblockBEHelperMaster<State> getMasterHelperWithChunkloads()
+	{
+		return getMasterHelper(level.forciblyGetBlockEntity(multiblock.masterPosInMB()));
+	}
+
+	public void load(CompoundTag tag, Provider provider)
+	{
+		final String key = tag.contains("posInMultiblock")?"posInMultiblock": "posInMB";
+		this.positionInMB = BlockPos.of(tag.getLongOr(key, BlockPos.ZERO.asLong()));
+	}
+
+	public void saveAdditional(CompoundTag tag, Provider provider)
+	{
+		tag.putLong("posInMB", this.positionInMB.asLong());
+	}
+
+	public CompoundTag getUpdateTag(Provider provider)
+	{
+		CompoundTag result = new CompoundTag();
+		saveAdditional(result, provider);
+		return result;
+	}
+
+	public void handleUpdateTag(CompoundTag tag, Provider provider)
+	{
+		load(tag, provider);
+	}
+
+	public Packet<ClientGamePacketListener> getUpdatePacket()
+	{
+		return ClientboundBlockEntityDataPacket.create(this.be);
+	}
+
+	public void onDataPacket(CompoundTag tag, Provider provider)
+	{
+		load(tag, provider);
+	}
+
+	public MultiblockRegistration<State> getMultiblock()
+	{
+		return multiblock;
+	}
+
+	@Nullable
+	private <T> T getOnMaster(Function<IMultiblockBEHelperMaster<State>, T> get)
+	{
+		final IMultiblockBEHelperMaster<State> master = getIMasterHelper();
+		if(master!=null)
+			return get.apply(master);
+		else
+			return null;
+	}
+
+	@Nullable
+	protected MultiblockBEHelperMaster<State> getMasterHelper()
+	{
+		return getIMasterHelper() instanceof MultiblockBEHelperMaster<State> helper?helper: null;
+	}
+
+	@Nullable
+	protected IMultiblockBEHelperMaster<State> getIMasterHelper()
+	{
+		// TODO cache master BE?
+		return getMasterHelper(level.getBlockEntity(multiblock.masterPosInMB()));
+	}
+
+	private IMultiblockBEHelperMaster<State> getMasterHelper(BlockEntity beAtMasterPos)
+	{
+		if(!(beAtMasterPos instanceof MultiblockBlockEntityMaster<?> masterBE))
+			return null;
+		final IMultiblockBEHelperMaster<?> masterHelper = masterBE.getHelper();
+		if(masterHelper.getMultiblock()==multiblock)
+			//noinspection unchecked
+			return (IMultiblockBEHelperMaster<State>)masterHelper;
+		else
+			return null;
+	}
+
+	public void setPositionInMB(BlockPos pos)
+	{
+		Preconditions.checkArgument(!multiblock.masterPosInMB().equals(pos));
+		this.positionInMB = pos;
+		this.be.requestModelDataUpdate();
+		this.be.setChanged();
+	}
+
+	public BlockPos getPositionInMB()
+	{
+		return positionInMB;
+	}
+}

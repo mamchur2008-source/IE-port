@@ -1,0 +1,10 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "callbacks":  "immersiveengineering:breaker",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/connector/redstone_breaker.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/connector/redstone_breaker",
+                     "immersiveengineering:block/connector/redstone_breaker":  "immersiveengineering:block/connector/redstone_breaker"
+                 }
+}

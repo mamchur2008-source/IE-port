@@ -1,0 +1,11 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "automatic_culling":  false,
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/connector/connector_hv.obj",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/connector/connector_hv",
+                     "immersiveengineering:block/connector/connector_hv":  "immersiveengineering:block/connector/connector_hv"
+                 }
+}

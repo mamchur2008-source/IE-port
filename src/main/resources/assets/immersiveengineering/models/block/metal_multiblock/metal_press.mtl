@@ -1,0 +1,4 @@
+newmtl metalPress
+map_Kd immersiveengineering:block/multiblocks/metal_press
+newmtl conveyor
+map_Kd immersiveengineering:block/conveyor/conveyor

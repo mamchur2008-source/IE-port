@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:bullet_silver"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:bullet_dragons_breath"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:bullet_homing"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:toolupgrade_revolver_magazine"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "immersiveengineering:gameplay/hero_of_the_village/gunsmith"
+}

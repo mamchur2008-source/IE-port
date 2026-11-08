@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "l": "#minecraft:logs_that_burn",
+    "p": "#minecraft:planks"
+  },
+  "pattern": [
+    "p",
+    "l"
+  ],
+  "result": {
+    "count": 1,
+    "id": "immersiveengineering:chopping_block"
+  }
+}

@@ -1,0 +1,52 @@
+{
+  "required": true,
+  "package": "blusunrize.immersiveengineering.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "plugin": "blusunrize.immersiveengineering.common.mixin.IEMixinConfig",
+  "mixins": [
+    "accessors.AbstractArrowAccess",
+    "accessors.BaseContainerBEAccess",
+    "accessors.BETypeAccess",
+    "accessors.ConcretePowderBlockAccess",
+    "accessors.ContainerAccess",
+    "accessors.CraftingContainerAccess",
+    "accessors.CropBlockAccess",
+    "accessors.DamageSourcesAccess",
+    "accessors.FlowingFluidAccess",
+    "accessors.FurnaceTEAccess",
+    "accessors.ItemEntityAccess",
+    "accessors.ItemModelGeneratorsAccess",
+    "accessors.PaletteAccess",
+    "accessors.PotionBrewingAccess",
+    "accessors.PotionMixAccess",
+    "accessors.ServerPlayNetHandlerAccess",
+    "accessors.ShapedPatternAccess",
+    "accessors.ShapedRecipeAccess",
+    "accessors.TemplateAccess",
+    "accessors.TemplatePoolAccess",
+    "accessors.TNTEntityAccess",
+    "accessors.TrimModelDataAccess",
+    "coremods.AbstractBlockStateMixin",
+    "coremods.BreezeDeflectionMixin",
+    "coremods.ServerWorldMixin",
+    "coremods.TemplateMixin",
+    "coremods.WallMixin",
+    "coremods.WaterwheelBoundsMixin"
+  ],
+  "client": [
+    "accessors.client.AdvancementToastAccess",
+    "accessors.client.ChatComponentAccess",
+    "accessors.client.FontResourceManagerAccess",
+    "accessors.client.GuiSubtitleOverlayAccess",
+    "accessors.client.MinecraftAccess",
+    "accessors.client.ParticleManagerAccess",
+    "accessors.client.PlayerControllerAccess",
+    "accessors.client.SimpleModelAccess",
+    "coremods.client.BipedModelMixin",
+    "coremods.client.SoundEngineMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "minVersion": "0.8"
+}

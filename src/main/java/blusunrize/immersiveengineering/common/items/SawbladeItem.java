@@ -1,0 +1,98 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2020
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.items;
+
+import blusunrize.immersiveengineering.ImmersiveEngineering;
+import com.google.common.collect.ImmutableSet;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.common.ItemAbilities;
+import net.neoforged.neoforge.common.ItemAbility;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+
+public class SawbladeItem extends IEBaseItem
+{
+	private static final Set<ItemAbility> TOOL_ACTIONS = ImmutableSet.of(
+			ItemAbilities.SHEARS_CARVE
+	);
+	private final float sawbladeSpeed;
+	private final float sawbladeDamage;
+	private final Identifier texture;
+
+	public SawbladeItem(int maxDamage, float sawbladeSpeed, float sawbladeDamage, Identifier texture)
+	{
+		super(itemProperties().durability(maxDamage));
+		this.sawbladeSpeed = sawbladeSpeed;
+		this.sawbladeDamage = sawbladeDamage;
+		this.texture = texture;
+		BuzzsawItem.SAWBLADES.add(this);
+	}
+
+	public SawbladeItem(int maxDamage, float sawbladeSpeed, float sawbladeDamage)
+	{
+		this(maxDamage, sawbladeSpeed, sawbladeDamage, ImmersiveEngineering.rl("item/sawblade_blade"));
+	}
+
+	public boolean isEnchantable(ItemStack stack)
+	{
+		return false;
+	}
+
+	public boolean isBookEnchantable(ItemStack stack, ItemStack book)
+	{
+		return false;
+	}
+
+	public final Identifier getSawbladeTexture()
+	{
+		return texture;
+	}
+
+	public float getSawbladeSpeed()
+	{
+		return sawbladeSpeed;
+	}
+
+	public float getSawbladeDamage()
+	{
+		return sawbladeDamage;
+	}
+
+	public int getSawbladeDamageFromBlock(boolean effective)
+	{
+		return effective?1: 3;
+	}
+
+	public boolean canSawbladeFellTree()
+	{
+		return true;
+	}
+
+	public Map<ResourceKey<Enchantment>, Integer> getExtraEnchantments()
+	{
+		return Map.of();
+	}
+
+	public Predicate<BlockState> getSawbladeMaterials()
+	{
+		return s -> s.is(BlockTags.MINEABLE_WITH_AXE);
+	}
+
+	public Set<ItemAbility> getItemAbilities()
+	{
+		return TOOL_ACTIONS;
+	}
+}

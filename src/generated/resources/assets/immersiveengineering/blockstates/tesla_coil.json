@@ -1,0 +1,39 @@
+{
+  "variants": {
+    "facing=down": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/metal_device/teslacoil_split",
+      "uvlock": true,
+      "x": 90
+    },
+    "facing=east": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/metal_device/teslacoil_split",
+      "uvlock": true,
+      "y": 90
+    },
+    "facing=north": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/metal_device/teslacoil_split",
+      "uvlock": true
+    },
+    "facing=south": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/metal_device/teslacoil_split",
+      "uvlock": true,
+      "y": 180
+    },
+    "facing=up": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/metal_device/teslacoil_split",
+      "uvlock": true,
+      "x": -90
+    },
+    "facing=west": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/metal_device/teslacoil_split",
+      "uvlock": true,
+      "y": 270
+    }
+  }
+}

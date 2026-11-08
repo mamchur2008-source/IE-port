@@ -1,0 +1,143 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2023
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.blocks;
+
+import blusunrize.immersiveengineering.api.Lib;
+import blusunrize.immersiveengineering.api.tool.ExternalHeaterHandler;
+import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.IGeneralMultiblock;
+import blusunrize.immersiveengineering.common.blocks.cloth.BalloonBlockEntity;
+import blusunrize.immersiveengineering.common.blocks.cloth.ShaderBannerBlockEntity;
+import blusunrize.immersiveengineering.common.blocks.metal.*;
+import blusunrize.immersiveengineering.common.blocks.wooden.*;
+import blusunrize.immersiveengineering.common.register.IEBlockEntities;
+import blusunrize.immersiveengineering.common.util.VanillaFurnaceHeater;
+import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.capabilities.BlockCapability;
+import net.neoforged.neoforge.capabilities.ICapabilityProvider;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
+@EventBusSubscriber(modid = Lib.MODID)
+public class BlockCapabilityRegistration
+{
+	@SubscribeEvent
+	public static void registerBlockCapabilities(RegisterCapabilitiesEvent event)
+	{
+		// Cloth
+		BalloonBlockEntity.registerCapabilities(forType(event, IEBlockEntities.BALLOON));
+		ShaderBannerBlockEntity.registerCapabilities(forType(event, IEBlockEntities.SHADER_BANNER));
+
+		// Metal
+		BlastFurnacePreheaterBlockEntity.registerCapabilities(forType(event, IEBlockEntities.BLASTFURNACE_PREHEATER));
+		CapacitorBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CAPACITOR_LV));
+		CapacitorBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CAPACITOR_MV));
+		CapacitorBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CAPACITOR_HV));
+		CapacitorBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CAPACITOR_CREATIVE));
+		ChargingStationBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CHARGING_STATION));
+		ChuteBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CHUTE));
+		ClocheBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CLOCHE));
+		CreativeFluidTankBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CREATIVE_FLUID_TANK));
+		for(Supplier<BlockEntityType<?>> beType : ConveyorBeltBlockEntity.BE_TYPES.values())
+			ConveyorBeltBlockEntity.registerCapabilities(
+					forType(event, () -> (BlockEntityType<ConveyorBeltBlockEntity<?>>)beType.get())
+			);
+		DynamoBlockEntity.registerCapabilities(forType(event, IEBlockEntities.DYNAMO));
+		ElectromagnetBlockEntity.registerCapabilities(forType(event, IEBlockEntities.ELECTROMAGNET));
+		EnergyConnectorBlockEntity.registerCapabilities(event);
+		FluidPipeBlockEntity.registerCapabilities(forType(event, IEBlockEntities.FLUID_PIPE));
+		FluidPumpBlockEntity.registerCapabilities(forType(event, IEBlockEntities.FLUID_PUMP));
+		FluidPlacerBlockEntity.registerCapabilities(forType(event, IEBlockEntities.FLUID_PLACER));
+		FurnaceHeaterBlockEntity.registerCapabilities(forType(event, IEBlockEntities.FURNACE_HEATER));
+		MetalBarrelBlockEntity.registerCapabilities(forType(event, IEBlockEntities.METAL_BARREL));
+		SampleDrillBlockEntity.registerCapabilities(forType(event, IEBlockEntities.SAMPLE_DRILL));
+		TeslaCoilBlockEntity.registerCapabilities(forType(event, IEBlockEntities.TESLACOIL));
+		ThermoelectricGenBlockEntity.registerCapabilities(forType(event, IEBlockEntities.THERMOELECTRIC_GEN));
+		TurretChemBlockEntity.registerCapabilities(forType(event, IEBlockEntities.TURRET_CHEM));
+		TurretGunBlockEntity.registerCapabilities(forType(event, IEBlockEntities.TURRET_GUN));
+		PipeValveBlockEntity.registerCapabilities(forType(event, IEBlockEntities.PIPE_VALVE));
+
+		// Wood
+		CircuitTableBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CIRCUIT_TABLE));
+		CraftingTableBlockEntity.registerCapabilities(forType(event, IEBlockEntities.CRAFTING_TABLE));
+		FluidSorterBlockEntity.registerCapabilities(forType(event, IEBlockEntities.FLUID_SORTER));
+		ItemBatcherBlockEntity.registerCapabilities(forType(event, IEBlockEntities.ITEM_BATCHER));
+		LogicUnitBlockEntity.registerCapabilities(forType(event, IEBlockEntities.LOGIC_UNIT));
+		MachineInterfaceBlockEntity.registerCapabilities(forType(event, IEBlockEntities.MACHINE_INTERFACE));
+		SorterBlockEntity.registerCapabilities(forType(event, IEBlockEntities.SORTER));
+		WoodenBarrelBlockEntity.registerCapabilities(forType(event, IEBlockEntities.WOODEN_BARREL));
+		WoodenCrateBlockEntity.registerCapabilities(forType(event, IEBlockEntities.WOODEN_CRATE));
+
+		// Vanilla
+		event.registerBlockEntity(
+				ExternalHeaterHandler.CAPABILITY, BlockEntityType.FURNACE, (be, side) -> new VanillaFurnaceHeater(be)
+		);
+	}
+
+	private static <BE extends BlockEntity> BECapabilityRegistrar<BE> forType(
+			RegisterCapabilitiesEvent ev, Supplier<BlockEntityType<BE>> type
+	)
+	{
+		return new BECapabilityRegistrar<>()
+		{
+			@SuppressWarnings({"rawtypes", "unchecked"})
+			public void register(BlockCapability capability, BECapabilityProvider<? super BE> provider)
+			{
+				ev.registerBlockEntity(capability, type.get(), (be, ctx) -> provider.getCapability(be, (Direction)ctx));
+			}
+		};
+	}
+
+	private static <BE extends BlockEntity & IGeneralMultiblock> BECapabilityRegistrar<BE> forType(
+			RegisterCapabilitiesEvent ev, MultiblockBEType<BE> type
+	)
+	{
+		return new BECapabilityRegistrar<>()
+		{
+			@SuppressWarnings({"rawtypes", "unchecked"})
+			public void register(BlockCapability capability, BECapabilityProvider<? super BE> provider)
+			{
+				ev.registerBlockEntity(capability, type.dummy(), (be, ctx) -> provider.getCapability(be, (Direction)ctx));
+				ev.registerBlockEntity(capability, type.master(), (be, ctx) -> provider.getCapability(be, (Direction)ctx));
+			}
+		};
+	}
+
+	public interface BECapabilityRegistrar<BE>
+	{
+		@SuppressWarnings("rawtypes")
+		void register(BlockCapability capability, BECapabilityProvider<? super BE> provider);
+
+		@SuppressWarnings("rawtypes")
+		default void registerOnContext(
+				BlockCapability capability, Function<? super BE, ?> getValue, Object onContext
+		)
+		{
+			register(capability, (be, ctx) -> Objects.equals(onContext, ctx)?getValue.apply(be): null);
+		}
+
+		@SuppressWarnings("rawtypes")
+		default void registerAllContexts(BlockCapability capability, Function<? super BE, ?> getValue)
+		{
+			register(capability, (be, ctx) -> getValue.apply(be));
+		}
+	}
+
+	@FunctionalInterface
+	public interface BECapabilityProvider<BE>
+	{
+		Object getCapability(BE be, Direction context);
+	}
+}

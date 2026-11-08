@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "facing=down": {
+      "model": "immersiveengineering:block/clinker_brick_sill_down"
+    },
+    "facing=up": {
+      "model": "immersiveengineering:block/clinker_brick_sill_up"
+    }
+  }
+}

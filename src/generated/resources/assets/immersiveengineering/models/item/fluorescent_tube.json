@@ -1,0 +1,114 @@
+﻿{
+    "callbacks":  "immersiveengineering:fluorescent_tube",
+    "display":  {
+                    "firstperson_lefthand":  {
+                                                 "right_rotation":  [
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0
+                                                                    ],
+                                                 "rotation":  [
+                                                                  -59.999992,
+                                                                  0.0,
+                                                                  0.0
+                                                              ],
+                                                 "scale":  [
+                                                               1.0,
+                                                               1.0000001,
+                                                               1.0000001
+                                                           ],
+                                                 "translation":  [
+                                                                     3.2,
+                                                                     1.6,
+                                                                     0.0
+                                                                 ]
+                                             },
+                    "firstperson_righthand":  {
+                                                  "right_rotation":  [
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0
+                                                                     ],
+                                                  "rotation":  [
+                                                                   -59.999992,
+                                                                   0.0,
+                                                                   0.0
+                                                               ],
+                                                  "scale":  [
+                                                                1.0,
+                                                                1.0000001,
+                                                                1.0000001
+                                                            ],
+                                                  "translation":  [
+                                                                      3.2,
+                                                                      1.6,
+                                                                      0.0
+                                                                  ]
+                                              },
+                    "ground":  {
+                                   "right_rotation":  [
+                                                          0.0,
+                                                          0.0,
+                                                          0.0
+                                                      ],
+                                   "scale":  [
+                                                 0.5,
+                                                 0.5,
+                                                 0.5
+                                             ],
+                                   "translation":  [
+                                                       0.0,
+                                                       4.0,
+                                                       0.0
+                                                   ]
+                               },
+                    "gui":  {
+                                "right_rotation":  [
+                                                       0.0,
+                                                       0.0,
+                                                       0.0
+                                                   ],
+                                "rotation":  [
+                                                 16.324945,
+                                                 15.699853,
+                                                 -47.265793
+                                             ],
+                                "scale":  [
+                                              1.0,
+                                              1.0,
+                                              0.9999999
+                                          ]
+                            },
+                    "thirdperson_lefthand":  {
+                                                 "right_rotation":  [
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0
+                                                                    ],
+                                                 "translation":  [
+                                                                     0.0,
+                                                                     8.0,
+                                                                     1.6
+                                                                 ]
+                                             },
+                    "thirdperson_righthand":  {
+                                                  "right_rotation":  [
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0
+                                                                     ],
+                                                  "translation":  [
+                                                                      0.0,
+                                                                      8.0,
+                                                                      1.6
+                                                                  ]
+                                              }
+                },
+    "dynamic":  true,
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/item/fluorescent_tube.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:item/white",
+                     "immersiveengineering:item/white":  "immersiveengineering:item/white"
+                 }
+}

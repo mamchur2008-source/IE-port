@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "immersiveengineering:block/metal/sheetmetal_light_blue",
+    "side": "immersiveengineering:block/metal/sheetmetal_light_blue",
+    "top": "immersiveengineering:block/metal/sheetmetal_light_blue"
+  }
+}

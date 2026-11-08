@@ -1,0 +1,45 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2020
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ *
+ */
+
+package blusunrize.immersiveengineering.common.crafting.serializers;
+
+import blusunrize.immersiveengineering.api.crafting.IERecipeSerializer;
+import blusunrize.immersiveengineering.api.crafting.TagOutput;
+import malte0811.dualcodecs.DualCodecs;
+import malte0811.dualcodecs.DualCompositeMapCodecs;
+import malte0811.dualcodecs.DualMapCodec;
+import blusunrize.immersiveengineering.common.crafting.LazyShapelessRecipe;
+import blusunrize.immersiveengineering.common.register.IEItems;
+import net.minecraft.core.NonNullList;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.level.block.Blocks;
+
+public class HammerCrushingRecipeSerializer extends IERecipeSerializer<LazyShapelessRecipe>
+{
+	private final DualMapCodec<RegistryFriendlyByteBuf, LazyShapelessRecipe> codecs = DualCompositeMapCodecs.composite(
+			TagOutput.CODECS.fieldOf("result"), LazyShapelessRecipe::getResult,
+			DualCodecs.INGREDIENT.fieldOf("input"), r -> r.getIngredients().get(0),
+			(result, input) -> new LazyShapelessRecipe(
+					"", result, NonNullList.of(Ingredient.of(Items.BARRIER), input, Ingredient.of(IEItems.Tools.HAMMER)), this
+			)
+	);
+
+	protected DualMapCodec<RegistryFriendlyByteBuf, LazyShapelessRecipe> codecs()
+	{
+		return codecs;
+	}
+
+	public ItemStack getIcon()
+	{
+		return new ItemStack(Blocks.CRAFTING_TABLE);
+	}
+}

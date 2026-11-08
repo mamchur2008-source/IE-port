@@ -1,0 +1,37 @@
+{
+  "multiblock": {
+    "type": "multiblock",
+    "name": "multiblocks/metal_press"
+  },
+  "mold_blueprint": {
+    "type": "crafting",
+    "recipe": "crafting/blueprint_molds"
+  },
+  "mold_recipes": {
+    "type": "blueprint",
+    "recipes": [
+      "blueprint/mold_plate",
+      "blueprint/mold_gear",
+      "blueprint/mold_rod",
+      "blueprint/mold_bullet_casing",
+      "blueprint/mold_wire",
+      "blueprint/mold_packing_4",
+      "blueprint/mold_packing_9",
+      "blueprint/mold_unpacking"
+    ]
+  },
+  "packing": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:mold_packing_4"
+      },
+      {
+        "id": "immersiveengineering:mold_packing_9"
+      },
+      {
+        "id": "immersiveengineering:mold_unpacking"
+      }
+    ]
+  }
+}

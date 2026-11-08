@@ -1,0 +1,13 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "callbacks":  "immersiveengineering:razor_wire",
+    "layers":  [
+                   "cutout"
+               ],
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/razor_wire.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/metal_decoration/razor_wire",
+                     "immersiveengineering:block/metal_decoration/razor_wire":  "immersiveengineering:block/metal_decoration/razor_wire"
+                 }
+}

@@ -1,0 +1,129 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2017
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.crafting;
+
+import blusunrize.immersiveengineering.common.util.RecipeSerializers;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.NonNullList;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+
+public class DamageToolRecipe implements IECraftingRecipe
+{
+	private final String group;
+	private final ItemStack result;
+	private final NonNullList<Ingredient> ingredients;
+
+	public DamageToolRecipe(String group, ItemStack result, Ingredient tool, NonNullList<Ingredient> input)
+	{
+		this.group = group;
+		this.result = result;
+		this.ingredients = addTo(tool, input);
+	}
+
+	private static NonNullList<Ingredient> addTo(Ingredient additional, NonNullList<Ingredient> old)
+	{
+		old.add(additional);
+		return old;
+	}
+
+	@Nonnull
+	public NonNullList<ItemStack> getRemainingItems(CraftingInput inv)
+	{
+		NonNullList<ItemStack> remains = NonNullList.withSize(inv.size(), ItemStack.EMPTY);
+		for(int i = 0; i < remains.size(); i++)
+		{
+			ItemStack s = inv.getItem(i);
+			ItemStack remain = remains.get(i);
+			ItemStack tool = ItemStack.EMPTY;
+			int toolDamageSlot = getIngredients().size()-1;
+			if(remain.isEmpty()&&!s.isEmpty()&&getIngredients().get(toolDamageSlot).test(s))
+				tool = s.copy();
+			else if(!remain.isEmpty()&&getIngredients().get(toolDamageSlot).test(remain))
+				tool = remain;
+			if(!tool.isEmpty()&&tool.isDamageableItem())
+			{
+				tool.setDamageValue(tool.getDamageValue()+1);
+				if(tool.getDamageValue() > tool.getMaxDamage())
+					tool = ItemStack.EMPTY;
+				remains.set(i, tool);
+			}
+		}
+		return remains;
+	}
+
+	public boolean matches(CraftingInput matrix, Level world)
+	{
+		List<Ingredient> required = new LinkedList<>(getIngredients());
+
+		for(int i = 0; i < matrix.size(); i++)
+		{
+			ItemStack slot = matrix.getItem(i);
+			if(!slot.isEmpty())
+			{
+				boolean inRecipe = false;
+				Iterator<Ingredient> iterator = required.iterator();
+				while(iterator.hasNext())
+				{
+					Ingredient next = iterator.next();
+					if(next.test(slot))
+					{
+						inRecipe = true;
+						iterator.remove();
+						break;
+					}
+				}
+				if(!inRecipe)
+					return false;
+			}
+		}
+		return required.isEmpty();
+	}
+
+	@Nonnull
+	public NonNullList<Ingredient> getIngredients()
+	{
+		return ingredients;
+	}
+
+	@Nonnull
+	public ItemStack getResultItem(Provider access)
+	{
+		return result;
+	}
+
+	@Nonnull
+	public ItemStack assemble(@Nonnull CraftingInput inv)
+	{
+		return result.copy();
+	}
+
+	@Nonnull
+	public String group()
+	{
+		return group;
+	}
+
+	@Nonnull
+	public RecipeSerializer<DamageToolRecipe> getSerializer()
+	{
+		return RecipeSerializers.DAMAGE_TOOL_SERIALIZER.get();
+	}
+
+	public Ingredient getTool()
+	{
+		return getIngredients().get(getIngredients().size()-1);
+	}
+}

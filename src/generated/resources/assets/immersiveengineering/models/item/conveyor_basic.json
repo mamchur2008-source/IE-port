@@ -1,0 +1,12 @@
+{
+  "conveyorType": "immersiveengineering:basic",
+  "loader": "immersiveengineering:models/conveyor",
+  "textures": {
+    "immersiveengineering:block/conveyor/conveyor": "immersiveengineering:block/conveyor/conveyor",
+    "immersiveengineering:block/conveyor/casing_side": "immersiveengineering:block/conveyor/casing_side",
+    "immersiveengineering:block/conveyor/casing_walls": "immersiveengineering:block/conveyor/casing_walls",
+    "immersiveengineering:block/conveyor/casing_full": "immersiveengineering:block/conveyor/casing_full",
+    "immersiveengineering:block/conveyor/split_wall": "immersiveengineering:block/conveyor/split_wall",
+    "particle": "immersiveengineering:block/conveyor/conveyor"
+  }
+}

@@ -1,0 +1,14 @@
+﻿{
+    "type":  "side_vertical",
+    "base_name":  "immersiveengineering:block/metal_device/fluid_pump",
+    "loader":  "immersiveengineering:conf_sides",
+    "textures":  {
+                     "immersiveengineering:block/metal_device/fluid_pump_up_none":  "immersiveengineering:block/metal_device/fluid_pump_up_none",
+                     "immersiveengineering:block/metal_device/fluid_pump_up_in":  "immersiveengineering:block/metal_device/fluid_pump_up_in",
+                     "immersiveengineering:block/metal_device/fluid_pump_up_out":  "immersiveengineering:block/metal_device/fluid_pump_up_out",
+                     "immersiveengineering:block/metal_device/fluid_pump_side_none":  "immersiveengineering:block/metal_device/fluid_pump_side_none",
+                     "immersiveengineering:block/metal_device/fluid_pump_side_in":  "immersiveengineering:block/metal_device/fluid_pump_side_in",
+                     "immersiveengineering:block/metal_device/fluid_pump_side_out":  "immersiveengineering:block/metal_device/fluid_pump_side_out",
+                     "particle":  "immersiveengineering:block/metal_device/fluid_pump_up_none"
+                 }
+}

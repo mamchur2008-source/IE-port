@@ -1,0 +1,10 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "callbacks":  "immersiveengineering:structural_connector",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/connector/connector_structural.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/connector/connector_structural",
+                     "immersiveengineering:block/connector/connector_structural":  "immersiveengineering:block/connector/connector_structural"
+                 }
+}

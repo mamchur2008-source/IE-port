@@ -1,0 +1,30 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2023
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.data.models;
+
+import net.minecraft.resources.Identifier;
+import net.neoforged.neoforge.client.model.generators.CustomLoaderBuilder;
+import net.neoforged.neoforge.client.model.generators.ModelBuilder;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
+import java.util.function.BiFunction;
+
+public class SpecialModelBuilder<T extends ModelBuilder<T>> extends CustomLoaderBuilder<T>
+{
+	private SpecialModelBuilder(Identifier loaderId, T parent, ExistingFileHelper existingFileHelper)
+	{
+		super(loaderId, parent, existingFileHelper, false);
+	}
+
+	public static <T extends ModelBuilder<T>>
+	BiFunction<T, ExistingFileHelper, SpecialModelBuilder<T>> forLoader(Identifier loader)
+	{
+		return (t, h) -> new SpecialModelBuilder<>(loader, t, h);
+	}
+}

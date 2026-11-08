@@ -1,0 +1,4 @@
+newmtl drill
+map_Kd immersiveengineering:item/drill_diesel
+newmtl head
+map_Kd immersiveengineering:item/drill_diesel

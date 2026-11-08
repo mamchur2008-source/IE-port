@@ -1,0 +1,32 @@
+{
+  "coke": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:coal_coke"
+      },
+      {
+        "id": "immersiveengineering:dust_coke"
+      }
+    ]
+  },
+  "graphite": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:dust_hop_graphite"
+      }
+    ]
+  },
+  "shaping": {
+    "type": "bottling",
+    "recipes": [
+      {
+        "id": "immersiveengineering:plate_hop_graphite"
+      },
+      {
+        "id": "immersiveengineering:graphite_electrode"
+      }
+    ]
+  }
+}

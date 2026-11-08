@@ -1,0 +1,94 @@
+{
+  "creosote_oil": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:creosote_bucket"
+      }
+    ]
+  },
+  "redstone_acid": {
+    "type": "crafting",
+    "recipe": "crafting/redstone_acid"
+  },
+  "redstone_acid_mixer": {
+    "type": "mixer",
+    "recipe": {
+      "fluid": "immersiveengineering:redstone_acid"
+    }
+  },
+  "redstone_acid_copper": {
+    "type": "bottling",
+    "recipes": [
+      {
+        "id": "minecraft:exposed_copper"
+      },
+      {
+        "id": "minecraft:weathered_copper"
+      },
+      {
+        "id": "minecraft:oxidized_copper"
+      }
+    ]
+  },
+  "plant_oil_ethanol": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:plantoil_bucket"
+      },
+      {
+        "id": "immersiveengineering:ethanol_bucket"
+      }
+    ]
+  },
+  "biodiesel": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:biodiesel_bucket"
+      }
+    ]
+  },
+  "high_power_biodiesel": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:high_power_biodiesel_bucket"
+      }
+    ]
+  },
+  "resin_acetaldehyde": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:phenolic_resin_bucket"
+      },
+      {
+        "id": "immersiveengineering:acetaldehyde_bucket"
+      }
+    ]
+  },
+  "herbicide": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:herbicide_bucket"
+      }
+    ]
+  },
+  "herbicide_mixing": {
+    "type": "mixer",
+    "recipe": {
+      "fluid": "immersiveengineering:herbicide"
+    }
+  },
+  "potion": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:potion_bucket"
+      }
+    ]
+  }
+}

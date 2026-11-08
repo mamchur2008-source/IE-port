@@ -1,0 +1,10 @@
+﻿{
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/metal_multiblock/mixer_agitator.obj",
+    "textures":  {
+                     "immersiveengineering:block/multiblocks/mixer":  "immersiveengineering:block/multiblocks/mixer",
+                     "immersiveengineering:block/multiblocks/multiblock_base":  "immersiveengineering:block/multiblocks/multiblock_base",
+                     "immersiveengineering:block/multiblocks/multiblock_components":  "immersiveengineering:block/multiblocks/multiblock_components"
+                 }
+}

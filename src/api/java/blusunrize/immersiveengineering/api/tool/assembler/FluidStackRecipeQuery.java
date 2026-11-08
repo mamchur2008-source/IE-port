@@ -1,0 +1,60 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2023
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.api.tool.assembler;
+
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+
+public class FluidStackRecipeQuery extends RecipeQuery
+{
+	private final FluidStack fluidStack;
+
+	public FluidStackRecipeQuery(FluidStack stack)
+	{
+		this.fluidStack = stack;
+	}
+
+	@Override
+	public boolean matchesIgnoringSize(ItemStack stack)
+	{
+		return FluidUtil.getFluidContained(stack)
+				.map(this::containsQueriedFluid)
+				.orElse(false);
+	}
+
+	@Override
+	public boolean matchesFluid(FluidStack fluid)
+	{
+		return containsQueriedFluid(fluid);
+	}
+
+	private boolean containsQueriedFluid(FluidStack fluid)
+	{
+		return FluidStack.isSameFluidSameComponents(fluid, fluidStack)&&fluid.getAmount() >= fluidStack.getAmount();
+	}
+
+	@Override
+	public int getFluidSize()
+	{
+		return fluidStack.getAmount();
+	}
+
+	@Override
+	public int getItemCount()
+	{
+		return 1;
+	}
+
+	@Override
+	public boolean isFluid()
+	{
+		return true;
+	}
+}

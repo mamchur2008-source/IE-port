@@ -1,0 +1,30 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2024
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.blocks.multiblocks;
+
+import blusunrize.immersiveengineering.api.IEApi;
+import blusunrize.immersiveengineering.common.register.IEMultiblockLogic;
+import net.minecraft.core.BlockPos;
+
+public class RadioTowerMultiblock extends IETemplateMultiblock
+{
+	public static final BlockPos MASTER_OFFSET = new BlockPos(2, 8, 2);
+
+	public RadioTowerMultiblock()
+	{
+		super(IEApi.ieLoc("multiblocks/radio_tower"),
+				MASTER_OFFSET, new BlockPos(2, 1, 5), new BlockPos(5, 19, 6),
+				IEMultiblockLogic.RADIO_TOWER);
+	}
+
+	public float getManualScale()
+	{
+		return 5;
+	}
+}

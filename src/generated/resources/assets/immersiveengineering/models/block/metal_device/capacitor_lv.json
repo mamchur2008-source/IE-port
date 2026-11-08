@@ -1,0 +1,17 @@
+﻿{
+    "type":  "side_top_bottom",
+    "base_name":  "immersiveengineering:block/metal_device/capacitor_lv",
+    "loader":  "immersiveengineering:conf_sides",
+    "textures":  {
+                     "immersiveengineering:block/metal_device/capacitor_lv_down_none":  "immersiveengineering:block/metal_device/capacitor_lv_down_none",
+                     "immersiveengineering:block/metal_device/capacitor_lv_down_in":  "immersiveengineering:block/metal_device/capacitor_lv_down_in",
+                     "immersiveengineering:block/metal_device/capacitor_lv_down_out":  "immersiveengineering:block/metal_device/capacitor_lv_down_out",
+                     "immersiveengineering:block/metal_device/capacitor_lv_up_none":  "immersiveengineering:block/metal_device/capacitor_lv_up_none",
+                     "immersiveengineering:block/metal_device/capacitor_lv_up_in":  "immersiveengineering:block/metal_device/capacitor_lv_up_in",
+                     "immersiveengineering:block/metal_device/capacitor_lv_up_out":  "immersiveengineering:block/metal_device/capacitor_lv_up_out",
+                     "immersiveengineering:block/metal_device/capacitor_lv_side_none":  "immersiveengineering:block/metal_device/capacitor_lv_side_none",
+                     "immersiveengineering:block/metal_device/capacitor_lv_side_in":  "immersiveengineering:block/metal_device/capacitor_lv_side_in",
+                     "immersiveengineering:block/metal_device/capacitor_lv_side_out":  "immersiveengineering:block/metal_device/capacitor_lv_side_out",
+                     "particle":  "immersiveengineering:block/metal_device/capacitor_lv_down_none"
+                 }
+}

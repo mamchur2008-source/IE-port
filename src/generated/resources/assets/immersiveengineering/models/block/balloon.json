@@ -1,0 +1,13 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "callbacks":  "immersiveengineering:balloon",
+    "layers":  [
+                   "translucent"
+               ],
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/balloon.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/connector/balloon",
+                     "immersiveengineering:block/connector/balloon":  "immersiveengineering:block/connector/balloon"
+                 }
+}

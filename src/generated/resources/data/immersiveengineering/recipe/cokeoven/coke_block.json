@@ -1,0 +1,10 @@
+{
+  "type": "immersiveengineering:coke_oven",
+  "creosote": 5000,
+  "input": {
+    "basePredicate": "minecraft:coal_block",
+    "count": 2
+  },
+  "result": "#c:storage_blocks/coal_coke",
+  "time": 6000
+}

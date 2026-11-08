@@ -1,0 +1,12 @@
+﻿{
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/metal_multiblock/sawmill_animated.obj",
+    "textures":  {
+                     "immersiveengineering:item/sawblade_blade":  "immersiveengineering:item/sawblade_blade",
+                     "immersiveengineering:block/conveyor/conveyor":  "immersiveengineering:block/conveyor/conveyor",
+                     "immersiveengineering:block/multiblocks/sawmill":  "immersiveengineering:block/multiblocks/sawmill",
+                     "immersiveengineering:block/multiblocks/multiblock_base":  "immersiveengineering:block/multiblocks/multiblock_base",
+                     "immersiveengineering:block/multiblocks/multiblock_components":  "immersiveengineering:block/multiblocks/multiblock_components"
+                 }
+}

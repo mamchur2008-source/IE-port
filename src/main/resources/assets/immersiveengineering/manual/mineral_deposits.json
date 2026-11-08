@@ -1,0 +1,48 @@
+{
+  "survey_tools": {
+    "type": "crafting",
+    "recipe": "crafting/survey_tools"
+  },
+  "sample_drill": {
+    "type": "crafting",
+    "recipe": "crafting/sample_drill"
+  },
+  "core_sample": {
+    "type": "item_display",
+    "id": {
+      "id": "immersiveengineering:coresample",
+      "components": {
+        "immersiveengineering:coresample_data": {
+          "veins": [
+            {
+              "mineral": "immersiveengineering:mineral/chalcopyrite",
+              "percentage": 1.0,
+              "depletion": 0,
+              "saturation": 1
+            }
+          ],
+          "timestamp": 0,
+          "position": {
+            "dimension": "minecraft:overworld",
+            "x": 0,
+            "z": 0
+          }
+        }
+      }
+    }
+  },
+  "spoils": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "minecraft:cobbled_deepslate"
+      },
+      {
+        "id": "minecraft:cobblestone"
+      },
+      {
+        "id": "minecraft:gravel"
+      }
+    ]
+  }
+}

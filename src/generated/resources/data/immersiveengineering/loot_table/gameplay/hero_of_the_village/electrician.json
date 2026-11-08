@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:empty",
+  "pools": [
+    {
+      "bonus_rolls": 0.0,
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:armor_faraday_helmet"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:armor_faraday_chestplate"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:armor_faraday_leggings"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "immersiveengineering:armor_faraday_boots"
+        }
+      ],
+      "rolls": 1.0
+    }
+  ],
+  "random_sequence": "immersiveengineering:gameplay/hero_of_the_village/electrician"
+}

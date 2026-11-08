@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/steel_post_split"
+    }
+  }
+}

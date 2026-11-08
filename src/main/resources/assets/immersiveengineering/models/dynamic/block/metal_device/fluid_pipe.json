@@ -1,0 +1,13 @@
+{
+  "parent": "minecraft:block/block",
+  "callbacks": "immersiveengineering:pipe",
+  "layers": [
+    "cutout"
+  ],
+  "loader": "immersiveengineering:ie_obj",
+  "model": "immersiveengineering:models/block/metal_device/fluid_pipe.obj.ie",
+  "textures": {
+    "particle": "immersiveengineering:block/metal_device/fluid_pipe",
+    "immersiveengineering:block/metal_device/fluid_pipe": "immersiveengineering:block/metal_device/fluid_pipe"
+  }
+}

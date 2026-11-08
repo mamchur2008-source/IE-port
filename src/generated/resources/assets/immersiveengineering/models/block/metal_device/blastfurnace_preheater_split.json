@@ -1,0 +1,37 @@
+{
+  "parent": "minecraft:block/block",
+  "dynamic": false,
+  "inner_model": {
+    "parent": "minecraft:block/block",
+    "automatic_culling": false,
+    "flip_v": true,
+    "loader": "neoforge:obj",
+    "model": "immersiveengineering:models/block/metal_device/blastfurnace_preheater.obj",
+    "textures": {
+      "particle": "immersiveengineering:block/metal_device/blast_furnace_preheater",
+      "immersiveengineering:block/metal_device/blast_furnace_preheater": "immersiveengineering:block/metal_device/blast_furnace_preheater"
+    }
+  },
+  "loader": "immersiveengineering:basic_split",
+  "split_parts": [
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      2,
+      0
+    ]
+  ],
+  "textures": {
+    "particle": "immersiveengineering:block/metal_device/blast_furnace_preheater",
+    "immersiveengineering:block/metal_device/blast_furnace_preheater": "immersiveengineering:block/metal_device/blast_furnace_preheater"
+  }
+}

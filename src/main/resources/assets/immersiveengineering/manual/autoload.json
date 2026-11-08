@@ -1,0 +1,175 @@
+{
+  "autoload_priority": 1,
+  "entry_list": [
+    {
+      "source": "introduction",
+      "weight": -1
+    }
+  ],
+  "resources": {
+    "category_weight": 0,
+    "entry_list": [
+      "ores",
+      "industrial_hemp",
+      "treated_wood",
+      "basic_metal_products",
+      "industrial_fluids",
+      "industrial_dyes",
+      "industrial_byproducts",
+      "crafting_components",
+      "coke_and_graphite",
+      "resin_and_duroplast",
+      "other_engineers"
+    ]
+  },
+  "tools": {
+    "category_weight": 10,
+    "entry_list": [
+      "basic_tools",
+      "engineers_toolbox",
+      "jerrycan",
+      "ear_defenders",
+      "maintenance_kit",
+      "engineers_skyhook",
+      "mining_drill",
+      "buzzsaw",
+      "accumulator_backpack",
+      "collapsible_glider",
+      "shaders"
+    ]
+  },
+  "storage_transport": {
+    "category_weight": 20,
+    "entry_list": [
+      "storage_crates",
+      "storage_barrels",
+      "storage_minecarts",
+      "conveyor_belts",
+      "strip_curtains",
+      "item_hatch",
+      "chutes",
+      "item_router",
+      "item_batcher",
+      "fluid_pipes",
+      "fluid_pump",
+      "pipe_valve",
+      "fluid_router",
+      "fluid_outlet"
+    ]
+  },
+  "construction": {
+    "category_weight": 30,
+    "entry_list": [
+      "concrete",
+      "hempcrete",
+      "clinker_brick",
+      "slag_products",
+      "posts_and_wallmounts",
+      "scaffolding_and_ladders",
+      "catwalks",
+      "doors_and_trapdoors",
+      "signs",
+      "warning_signs",
+      "metal_constructions",
+      "windows",
+      "engineered_lighting",
+      "balloon"
+    ]
+  },
+  "workbenches_machinery": {
+    "category_weight": 40,
+    "entry_list": [
+      "engineers_crafting_table",
+      "engineers_workbench",
+      "blueprints",
+      "external_heater",
+      "turntable",
+      "garden_cloche",
+      "charging_station",
+      "electromagnet"
+    ]
+  },
+  "electrical_grids": {
+    "category_weight": 50,
+    "entry_list": [
+      "basic_wiring",
+      "transformers",
+      "feedthrough_insulators",
+      "accumulators",
+      "circuit_breakers",
+      "current_transformer",
+      "kinetic_generators",
+      "thermoelectric_generator",
+      "diesel_generator",
+      "lightning_rod"
+    ]
+  },
+  "redstone_control": {
+    "category_weight": 60,
+    "entry_list": [
+      "redstone_wiring",
+      "redstone_state_cells",
+      "siren",
+      "redstone_probe",
+      "redstone_timer",
+      "redstone_switchboard",
+      "engineers_circuit_workbench",
+      "logic_unit",
+      "machine_interface",
+      "radio_tower"
+    ]
+  },
+  "explosives_weaponry": {
+    "category_weight": 70,
+    "entry_list": [
+      "gunpowder_barrels",
+      "heavy_plated_shield",
+      "revolver",
+      "revolver_cartridges",
+      "railgun",
+      "chemical_thrower",
+      "razor_wire",
+      "tesla_coil",
+      "turrets"
+    ]
+  },
+  "multiblock_constructions": {
+    "category_weight": 80,
+    "entry_list": [
+      "large_constructions",
+      "silo",
+      "tank",
+      "storage_shelf",
+      "coke_oven",
+      "alloy_kiln",
+      "crude_blast_furnace",
+      "improved_blast_furnace"
+    ]
+  },
+  "heavy_machinery": {
+    "category_weight": 90,
+    "entry_list": [
+      "machine_components",
+      "metal_press",
+      "crusher",
+      "sawmill",
+      "mixer",
+      "bottling_machine",
+      "fermenter",
+      "squeezer",
+      "refinery",
+      "assembler",
+      "automated_engineers_workbench",
+      "arc_furnace",
+      "excavator"
+    ]
+  },
+  "weird_science": {
+    "category_weight": 100,
+    "entry_list": [
+      "esoteric_components",
+      "resonanz_observer",
+      "automaton_wolves"
+    ]
+  }
+}

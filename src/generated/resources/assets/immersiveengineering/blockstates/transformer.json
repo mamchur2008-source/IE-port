@@ -1,0 +1,42 @@
+{
+  "variants": {
+    "facing=east,mirrored=false": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_split",
+      "y": 270
+    },
+    "facing=east,mirrored=true": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_mirrored_split",
+      "y": 270
+    },
+    "facing=north,mirrored=false": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_split",
+      "y": 180
+    },
+    "facing=north,mirrored=true": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_mirrored_split",
+      "y": 180
+    },
+    "facing=south,mirrored=false": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_split"
+    },
+    "facing=south,mirrored=true": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_mirrored_split"
+    },
+    "facing=west,mirrored=false": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_split",
+      "y": 90
+    },
+    "facing=west,mirrored=true": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/transformer_mv_left_mirrored_split",
+      "y": 90
+    }
+  }
+}

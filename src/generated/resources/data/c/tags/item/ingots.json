@@ -1,0 +1,13 @@
+{
+  "values": [
+    "#c:ingots/aluminum",
+    "#c:ingots/lead",
+    "#c:ingots/silver",
+    "#c:ingots/nickel",
+    "#c:ingots/uranium",
+    "#c:ingots/constantan",
+    "#c:ingots/electrum",
+    "#c:ingots/steel",
+    "#c:ingots/hop_graphite"
+  ]
+}

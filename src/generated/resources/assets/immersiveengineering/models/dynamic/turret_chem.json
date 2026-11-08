@@ -1,0 +1,8 @@
+﻿{
+    "callbacks":  "immersiveengineering:submodel",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/metal_device/chem_turret.obj.ie",
+    "textures":  {
+                     "immersiveengineering:block/metal_device/chem_turret":  "immersiveengineering:block/metal_device/chem_turret"
+                 }
+}

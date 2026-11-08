@@ -1,0 +1,86 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2022
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.data.manual;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.data.CachedOutput;
+import net.minecraft.data.DataProvider;
+import net.minecraft.data.PackOutput;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ReloadableResourceManager;
+import net.minecraft.tags.TagLoader;
+import net.minecraft.world.item.Item;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+
+import javax.annotation.Nonnull;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.CompletableFuture;
+
+public record TagExports(PackOutput output, ExistingFileHelper helper, Path outPath) implements DataProvider
+{
+	private static final Gson GSON = new Gson();
+
+	@Override
+	public CompletableFuture<?> run(@Nonnull CachedOutput cache)
+	{
+		try
+		{
+			actuallyRun();
+			return CompletableFuture.completedFuture(null);
+		} catch(IOException x)
+		{
+			return CompletableFuture.failedFuture(x);
+		}
+	}
+
+	private void actuallyRun() throws IOException
+	{
+		TagLoader<Item> loader = new TagLoader<>(
+				BuiltInRegistries.ITEM::getOptional, Registries.tagsDirPath(Registries.ITEM)
+		);
+		try(ReloadableResourceManager resourceManager = ManualDataGenerator.makeFullResourceManager(
+				PackType.SERVER_DATA, output, helper
+		))
+		{
+			Map<Identifier, Collection<Item>> tags = loader.loadAndBuild(resourceManager);
+			for(Entry<Identifier, Collection<Item>> entry : tags.entrySet())
+			{
+				JsonArray elements = new JsonArray();
+				entry.getValue().stream()
+						.map(item -> BuiltInRegistries.ITEM.getKey(item).toString())
+						.sorted()
+						.forEach(elements::add);
+				Identifier tagName = entry.getKey();
+				Path tagPath = outPath.resolve(tagName.getNamespace()).resolve(tagName.getPath()+".json");
+				Files.createDirectories(tagPath.getParent());
+				try(BufferedWriter writer = Files.newBufferedWriter(tagPath))
+				{
+					writer.write(GSON.toJson(elements));
+				}
+			}
+		}
+	}
+
+	@Nonnull
+	@Override
+	public String getName()
+	{
+		return "Tag export for online manual";
+	}
+}

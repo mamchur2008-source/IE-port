@@ -1,0 +1,13 @@
+{
+  "items": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:crusher"
+      },
+      {
+        "id": "immersiveengineering:arc_furnace"
+      }
+    ]
+  }
+}

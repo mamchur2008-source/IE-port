@@ -1,0 +1,12 @@
+{
+    "parent":  "minecraft:block/block",
+    "automatic_culling":  false,
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/sprayed_concrete.obj",
+    "render_type":  "minecraft:cutout",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/stone_decoration/concrete_sprayed",
+                     "immersiveengineering:block/stone_decoration/concrete_sprayed":  "immersiveengineering:block/stone_decoration/concrete_sprayed"
+                 }
+}

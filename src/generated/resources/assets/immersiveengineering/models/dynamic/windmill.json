@@ -1,0 +1,8 @@
+﻿{
+    "callbacks":  "immersiveengineering:submodel",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/wooden_device/windmill.obj.ie",
+    "textures":  {
+                     "immersiveengineering:block/wooden_device/windmill":  "immersiveengineering:block/wooden_device/windmill"
+                 }
+}

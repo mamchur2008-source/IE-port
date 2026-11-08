@@ -1,0 +1,253 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2017
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.blocks.wooden;
+
+import blusunrize.immersiveengineering.ImmersiveEngineering;
+import blusunrize.immersiveengineering.api.IEProperties;
+import blusunrize.immersiveengineering.api.energy.IRotationAcceptor;
+import blusunrize.immersiveengineering.api.energy.WindmillBiome;
+import blusunrize.immersiveengineering.api.utils.shapes.CachedVoxelShapes;
+import blusunrize.immersiveengineering.common.blocks.IEBaseBlockEntity;
+import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.*;
+import blusunrize.immersiveengineering.common.blocks.PlacementLimitation;
+import blusunrize.immersiveengineering.common.blocks.ticking.IEClientTickableBE;
+import blusunrize.immersiveengineering.common.blocks.ticking.IEServerTickableBE;
+import blusunrize.immersiveengineering.common.register.IEBlockEntities;
+import blusunrize.immersiveengineering.common.register.IEDataComponents;
+import blusunrize.immersiveengineering.common.register.IEItems.Ingredients;
+import blusunrize.immersiveengineering.common.util.CachedRecipe;
+import blusunrize.immersiveengineering.common.util.IESounds;
+import com.google.common.collect.Lists;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.BlockCapabilityCache;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.function.BiFunction;
+
+public class WindmillBlockEntity extends IEBaseBlockEntity implements IEServerTickableBE, IEClientTickableBE,
+		IStateBasedDirectional, IPlacementInteraction, IPlayerInteraction, IBlockBounds, ISoundBE
+{
+	public float rotation = 0;
+	public float turnSpeed = 0;
+	public int sails = 0;
+	private BlockCapabilityCache<IRotationAcceptor, ?> outputCap;
+
+	public WindmillBlockEntity(BlockPos pos, BlockState state)
+	{
+		super(IEBlockEntities.WINDMILL.get(), pos, state);
+	}
+
+	public void onLoad()
+	{
+		super.onLoad();
+		if(level instanceof ServerLevel serverLevel)
+		{
+			Direction facing = getFacing();
+			outputCap = BlockCapabilityCache.create(
+					IRotationAcceptor.CAPABILITY, serverLevel, worldPosition.relative(facing.getOpposite()), facing
+			);
+		}
+	}
+
+	public void tickClient()
+	{
+		rotation += getActualTurnSpeed();
+		rotation %= 1;
+		ImmersiveEngineering.proxy.handleTileSound(IESounds.mill_creaking, this, turnSpeed > 0, 0.5f, 1f);
+	}
+
+
+	private final BiFunction<Level, Holder<Biome>, Float> biomeModifier = CachedRecipe.cached(WindmillBiome::getBiome).andThen(
+			mod -> mod==null?1: mod.getModifier()
+	);
+
+	public double getActualTurnSpeed()
+	{
+		if(turnSpeed==0)
+			return 0;
+		double mod = .00005;
+		if(!level.isRaining())
+			mod *= .75;
+		if(!level.isThundering())
+			mod *= .66;
+		// Apply biome modifiers
+		mod *= biomeModifier.apply(level, level.getBiome(getBlockPos()));
+		mod *= getSpeedModifier();
+		return mod*turnSpeed;
+	}
+
+	public void tickServer()
+	{
+		if(level.getGameTime()%128==((getBlockPos().getX()^getBlockPos().getZ())&127))
+		{
+			final float oldTurnSpeed = turnSpeed;
+			turnSpeed = computeTurnSpeed();
+			if(oldTurnSpeed!=turnSpeed)
+				markContainingBlockForUpdate(null);
+		}
+		if(turnSpeed==0)
+			return;
+
+		IRotationAcceptor dynamo = outputCap.getCapability();
+		if(dynamo!=null)
+		{
+			double power = getActualTurnSpeed()*2400;
+			dynamo.inputRotation(Math.abs(power));
+		}
+	}
+
+	protected float getSpeedModifier()
+	{
+		return .5f+sails*.125f;
+	}
+
+	public float computeTurnSpeed()
+	{
+		Direction facing = getFacing();
+		if(facing.getAxis()==Direction.Axis.Y)
+			return 0;
+
+		float turnSpeed = 0;
+		for(int hh = -4; hh <= 4; hh++)
+		{
+			int r = Math.abs(hh)==4?1: Math.abs(hh)==3?2: Math.abs(hh)==2?3: 4;
+			for(int ww = -r; ww <= r; ww++)
+				if((hh!=0||ww!=0)&&!level.isEmptyBlock(getBlockPos().relative(facing.getClockWise(), ww).above(hh)))
+					return 0;
+		}
+
+		int blocked = 0;
+		for(int hh = -4; hh <= 4; hh++)
+		{
+			int r = Math.abs(hh)==4?1: Math.abs(hh)==3?2: Math.abs(hh)==2?3: 4;
+			for(int ww = -r; ww <= r; ww++)
+			{
+				for(int dd = 1; dd < 8; dd++)
+				{
+					BlockPos pos = getBlockPos().above(hh)
+							.relative(facing, dd)
+							.relative(facing.getClockWise(), ww);
+					if(!level.isAreaLoaded(pos, 1)||level.isEmptyBlock(pos))
+						turnSpeed++;
+					else if(level.getBlockEntity(pos) instanceof WindmillBlockEntity)
+					{
+						blocked += 20;
+						turnSpeed -= 179;
+					}
+					else
+						blocked++;
+				}
+			}
+			if(blocked > 100)
+				return 0;
+		}
+
+		return turnSpeed;
+	}
+
+	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+	{
+		sails = nbt.getIntOr("sails", 0);
+		rotation = nbt.getFloatOr("rotation", 0);
+		turnSpeed = nbt.getFloatOr("turnSpeed", 0);
+	}
+
+	public void writeCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+	{
+		nbt.putInt("sails", sails);
+		nbt.putFloat("rotation", rotation);
+		nbt.putFloat("turnSpeed", turnSpeed);
+	}
+
+	public AABB renderAABB;
+
+	public Property<Direction> getFacingProperty()
+	{
+		return IEProperties.FACING_HORIZONTAL;
+	}
+
+	public PlacementLimitation getFacingLimitation()
+	{
+		return PlacementLimitation.HORIZONTAL_PREFER_SIDE;
+	}
+
+	public boolean mirrorFacingOnPlacement(LivingEntity placer)
+	{
+		return true;
+	}
+
+	public boolean canHammerRotate(Direction side, Vec3 hit, LivingEntity entity)
+	{
+		return false;
+	}
+
+	public InteractionResult interact(Direction side, Player player, InteractionHand hand, ItemStack heldItem, float hitX, float hitY, float hitZ)
+	{
+		if(sails < 8&&heldItem.getItem()==Ingredients.WINDMILL_SAIL.asItem())
+		{
+			this.sails++;
+			if(!player.getAbilities().instabuild)
+				heldItem.shrink(1);
+			this.setChanged();
+			return InteractionResult.SUCCESS;
+		}
+		return InteractionResult.PASS;
+	}
+
+	public void onBEPlaced(BlockPlaceContext ctx)
+	{
+		final ItemStack stack = ctx.getItemInHand();
+		var blades = stack.get(IEDataComponents.WINDMILL_BLADES);
+		if(blades!=null)
+			this.sails = blades;
+	}
+
+	private static final CachedVoxelShapes<Direction> SHAPES = new CachedVoxelShapes<>(WindmillBlockEntity::getShape);
+
+	private static List<AABB> getShape(Direction key)
+	{
+		return Lists.newArrayList(
+				key.getAxis()==Axis.Z?new AABB(.0625, .0625, 0, .9375, .9375, 1):
+						new AABB(0, .0625, .0625, 1, .9375, .9375)
+		);
+	}
+
+	@Nonnull
+	public VoxelShape getBlockBounds(@Nullable CollisionContext ctx)
+	{
+		return SHAPES.get(this.getFacing());
+	}
+
+	public boolean shouldPlaySound(String sound)
+	{
+		return turnSpeed > 0;
+	}
+}

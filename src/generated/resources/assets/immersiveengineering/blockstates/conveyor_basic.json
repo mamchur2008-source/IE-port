@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "immersiveengineering:block/conveyor_basic",
+      "y": 90
+    },
+    "facing=north": {
+      "model": "immersiveengineering:block/conveyor_basic"
+    },
+    "facing=south": {
+      "model": "immersiveengineering:block/conveyor_basic",
+      "y": 180
+    },
+    "facing=west": {
+      "model": "immersiveengineering:block/conveyor_basic",
+      "y": 270
+    }
+  }
+}

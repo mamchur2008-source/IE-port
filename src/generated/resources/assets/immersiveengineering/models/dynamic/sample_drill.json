@@ -1,0 +1,9 @@
+﻿{
+    "parent":  "immersiveengineering:block/metal_device/core_drill_split",
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/metal_device/core_drill_center.obj",
+    "textures":  {
+                     "immersiveengineering:block/metal_device/coresample_drill":  "immersiveengineering:block/metal_device/coresample_drill"
+                 }
+}

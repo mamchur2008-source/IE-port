@@ -1,0 +1,48 @@
+{
+  "drill_base_recipes": {
+    "type": "crafting",
+    "recipes": [
+      [
+        {
+          "recipe": "crafting/drill"
+        },
+        {
+          "recipe": "crafting/wooden_grip"
+        }
+      ]
+    ]
+  },
+  "drill_head_recipes": {
+    "type": "crafting",
+    "recipes": [
+      [
+        {
+          "recipe": "crafting/drillhead_iron"
+        },
+        {
+          "recipe": "crafting/drillhead_steel"
+        }
+      ]
+    ]
+  },
+  "drill_waterproof_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_drill_waterproof"
+  },
+  "drill_lube_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_drill_lube"
+  },
+  "drill_damage_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_drill_damage"
+  },
+  "drill_fortune_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_drill_fortune"
+  },
+  "drill_capacity_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_drill_capacity"
+  }
+}

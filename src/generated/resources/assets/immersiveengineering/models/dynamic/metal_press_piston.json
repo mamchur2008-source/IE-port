@@ -1,0 +1,9 @@
+﻿{
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/metal_multiblock/metal_press_piston.obj",
+    "textures":  {
+                     "immersiveengineering:block/multiblocks/metal_press":  "immersiveengineering:block/multiblocks/metal_press",
+                     "immersiveengineering:block/conveyor/conveyor":  "immersiveengineering:block/conveyor/conveyor"
+                 }
+}

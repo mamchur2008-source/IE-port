@@ -1,0 +1,151 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2020
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ *
+ */
+
+package blusunrize.immersiveengineering.common.util;
+
+import blusunrize.immersiveengineering.ImmersiveEngineering;
+import blusunrize.immersiveengineering.api.utils.Raytracer;
+import blusunrize.immersiveengineering.api.utils.SafeChunkUtils;
+import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.ISpawnInterdiction;
+import blusunrize.immersiveengineering.common.config.IEServerConfig;
+import blusunrize.immersiveengineering.common.register.IEBlocks;
+import blusunrize.immersiveengineering.common.register.IEPotions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.EntityTeleportEvent;
+import net.neoforged.neoforge.event.entity.living.FinalizeSpawnEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
+
+import java.util.*;
+
+@EventBusSubscriber(modid = ImmersiveEngineering.MODID)
+public class SpawnInterdictionHandler
+{
+	private static final Map<ResourceKey<Level>, Set<ISpawnInterdiction>> interdictionTiles = new HashMap<>();
+
+	@SubscribeEvent
+	public static void onEnderTeleport(EntityTeleportEvent event)
+	{
+		if(!(event.getEntity() instanceof LivingEntity living))
+			return;
+		if(shouldCancel(living)||living.getEffect(IEPotions.STUNNED)!=null)
+			event.setCanceled(true);
+		else if(checkForLeadedBlocks(event, living))
+			event.setCanceled(true);
+	}
+
+	@SubscribeEvent
+	public static void onEnderpearlTeleport(EntityTeleportEvent event)
+	{
+		if(event.getEntity() instanceof LivingEntity living&&checkForLeadedBlocks(event, living))
+			event.setCanceled(true);
+	}
+
+	@SubscribeEvent
+	public static void onChorusTeleport(EntityTeleportEvent event)
+	{
+		if(event.getEntity() instanceof LivingEntity living&&checkForLeadedBlocks(event, living))
+			event.setCanceled(true);
+	}
+
+	private static boolean checkForLeadedBlocks(EntityTeleportEvent event, LivingEntity living)
+	{
+		Level level = living.level();
+		Set<BlockPos> blocksBetween = Raytracer.rayTrace(living.getEyePosition(), event.getTarget(), level);
+		return blocksBetween.stream().anyMatch(blockPos -> {
+			BlockState blockState = level.getBlockState(blockPos);
+			return blockState.is(IEBlocks.StoneDecoration.CONCRETE_LEADED.get());
+		});
+	}
+
+	@SubscribeEvent
+	public static void onEntitySpawnCheck(FinalizeSpawnEvent event)
+	{
+		if(event.isSpawnCancelled()||event.getSpawner()!=null)
+			return;
+		if(shouldCancel(event.getEntity()))
+			event.setSpawnCancelled(true);
+	}
+
+	@SubscribeEvent
+	public static void onWorldUnload(LevelEvent.Unload event)
+	{
+		if(event.getLevel().isClientSide()||!(event.getLevel() instanceof Level realLevel))
+			return;
+		synchronized(interdictionTiles)
+		{
+			interdictionTiles.remove(realLevel.dimension());
+		}
+	}
+
+	private static boolean shouldCancel(Entity entity)
+	{
+		if(entity.getType().getCategory()!=MobCategory.MONSTER)
+			return false;
+		ResourceKey<Level> dimension = entity.level().dimension();
+		synchronized(interdictionTiles)
+		{
+			if(!interdictionTiles.containsKey(dimension))
+				return false;
+			Iterator<ISpawnInterdiction> it = interdictionTiles.get(dimension).iterator();
+			while(it.hasNext())
+			{
+				ISpawnInterdiction interdictor = it.next();
+				if(interdictor instanceof BlockEntity interdictorTE)
+				{
+					if(interdictorTE.isRemoved()||interdictorTE.getLevel()==null)
+						it.remove();
+					else if(SafeChunkUtils.isChunkSafe(interdictorTE.getLevel(), interdictorTE.getBlockPos()))
+					{
+						Vec3 tilePos = Vec3.atCenterOf(interdictorTE.getBlockPos());
+						if(tilePos.distanceToSqr(entity.position()) <= interdictor.getInterdictionRangeSquared())
+							return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public static <T extends BlockEntity & ISpawnInterdiction>
+	void removeFromInterdictionTiles(T tile)
+	{
+		Level level = tile.getLevel();
+		if(level!=null&&!level.isClientSide())
+			synchronized(interdictionTiles)
+			{
+				Set<ISpawnInterdiction> inDimension = interdictionTiles.get(level.dimension());
+				if(inDimension!=null)
+					inDimension.remove(tile);
+			}
+	}
+
+	public static <T extends BlockEntity & ISpawnInterdiction>
+	void addInterdictionTile(T tile)
+	{
+		Level world = tile.getLevel();
+		if(world!=null&&!world.isClientSide()&&IEServerConfig.MACHINES.floodlight_spawnPrevent.get())
+			synchronized(interdictionTiles)
+			{
+				Set<ISpawnInterdiction> forDim = interdictionTiles.computeIfAbsent(
+						world.dimension(), x -> new HashSet<>()
+				);
+				forDim.add(tile);
+			}
+	}
+}

@@ -1,0 +1,8 @@
+{
+  "type": "neoforge:add_features",
+  "biomes": {
+    "type": "neoforge:any"
+  },
+  "features": "immersiveengineering:mineral_veins",
+  "step": "underground_ores"
+}

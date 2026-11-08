@@ -1,0 +1,56 @@
+{
+  "variants": {
+    "facing=down,multiblockslave=false": {
+      "model": "immersiveengineering:metal_device/pump_bottom",
+      "x": -180
+    },
+    "facing=down,multiblockslave=true": {
+      "model": "immersiveengineering:block/metal_device/fluid_pump",
+      "x": -180
+    },
+    "facing=east,multiblockslave=false": {
+      "model": "immersiveengineering:metal_device/pump_bottom",
+      "x": -90,
+      "y": 270
+    },
+    "facing=east,multiblockslave=true": {
+      "model": "immersiveengineering:block/metal_device/fluid_pump",
+      "x": -90,
+      "y": 270
+    },
+    "facing=north,multiblockslave=false": {
+      "model": "immersiveengineering:metal_device/pump_bottom",
+      "x": -90,
+      "y": 180
+    },
+    "facing=north,multiblockslave=true": {
+      "model": "immersiveengineering:block/metal_device/fluid_pump",
+      "x": -90,
+      "y": 180
+    },
+    "facing=south,multiblockslave=false": {
+      "model": "immersiveengineering:metal_device/pump_bottom",
+      "x": -90
+    },
+    "facing=south,multiblockslave=true": {
+      "model": "immersiveengineering:block/metal_device/fluid_pump",
+      "x": -90
+    },
+    "facing=up,multiblockslave=false": {
+      "model": "immersiveengineering:metal_device/pump_bottom"
+    },
+    "facing=up,multiblockslave=true": {
+      "model": "immersiveengineering:block/metal_device/fluid_pump"
+    },
+    "facing=west,multiblockslave=false": {
+      "model": "immersiveengineering:metal_device/pump_bottom",
+      "x": -90,
+      "y": 90
+    },
+    "facing=west,multiblockslave=true": {
+      "model": "immersiveengineering:block/metal_device/fluid_pump",
+      "x": -90,
+      "y": 90
+    }
+  }
+}

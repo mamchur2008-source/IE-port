@@ -1,0 +1,21 @@
+{
+  "tesla_coil_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/tesla_coil"
+  },
+  "faraday_recipes": {
+    "type": "crafting",
+    "recipes": [
+      [
+        "crafting/armor_faraday_helmet",
+        "crafting/armor_faraday_chestplate",
+        "crafting/armor_faraday_leggings",
+        "crafting/armor_faraday_boots"
+      ]
+    ]
+  },
+  "tube_recipes": {
+    "type": "crafting",
+    "recipe": "crafting/fluorescent_tube"
+  }
+}

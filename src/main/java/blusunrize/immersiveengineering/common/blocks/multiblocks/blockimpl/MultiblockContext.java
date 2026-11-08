@@ -1,0 +1,91 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2023
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.blocks.multiblocks.blockimpl;
+
+import blusunrize.immersiveengineering.api.multiblocks.blocks.MultiblockRegistration;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockContext;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.env.IMultiblockLevel;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockBE;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.logic.IMultiblockState;
+import blusunrize.immersiveengineering.api.multiblocks.blocks.util.RelativeBlockFace;
+import com.google.common.base.Preconditions;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+
+import java.util.function.BooleanSupplier;
+
+public record MultiblockContext<State extends IMultiblockState>(
+		MultiblockBEHelperMaster<State> masterHelper,
+		MultiblockRegistration<State> multiblock,
+		MultiblockLevel level
+) implements IMultiblockContext<State>
+{
+	public State getState()
+	{
+		return masterHelper.getState();
+	}
+
+	public void markMasterDirty()
+	{
+		masterHelper.getMasterBE().setChanged();
+	}
+
+	public IMultiblockLevel getLevel()
+	{
+		return level;
+	}
+
+	public BooleanSupplier isValid()
+	{
+		final BlockEntity masterBE = masterHelper.getMasterBE();
+		return () -> !masterBE.isRemoved();
+	}
+
+	public void requestMasterBESync()
+	{
+		requestBESync(this.masterHelper.getMasterBE());
+	}
+
+	static void requestBESync(BlockEntity be)
+	{
+		final Level level = be.getLevel();
+		if(level!=null&&level.getChunkSource() instanceof ServerChunkCache chunkCache)
+			chunkCache.blockChanged(be.getBlockPos());
+	}
+
+	public void setComparatorOutputFor(BlockPos posInMultiblock, int newValue)
+	{
+		Preconditions.checkState(masterHelper.multiblock.hasComparatorOutput());
+		final int oldValue = masterHelper.getCurrentComparatorOutputs().put(posInMultiblock, newValue);
+		if(oldValue!=newValue)
+			level.updateNeighbourForOutputSignal(posInMultiblock);
+	}
+
+	public int getRedstoneInputValue(BlockPos posInMultiblock, RelativeBlockFace side, int fallback)
+	{
+		Preconditions.checkState(masterHelper.multiblock.redstoneInputAware());
+		if(level.getBlockEntity(posInMultiblock) instanceof IMultiblockBE<?> beAtPos)
+			return beAtPos.getHelper().getRedstoneInput(side);
+		else
+			return fallback;
+	}
+
+	public int getRedstoneInputValue(BlockPos posInMultiblock, int fallback)
+	{
+		Preconditions.checkState(masterHelper.multiblock.redstoneInputAware());
+		if(!(level.getBlockEntity(posInMultiblock) instanceof IMultiblockBE<?> beAtPos))
+			return fallback;
+		int result = 0;
+		for(final RelativeBlockFace face : RelativeBlockFace.values())
+			result = Math.max(result, beAtPos.getHelper().getRedstoneInput(face));
+		return result;
+	}
+}

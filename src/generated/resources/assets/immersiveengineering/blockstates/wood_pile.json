@@ -1,0 +1,9 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "immersiveengineering:block/wooden_device/wood_pile"
+      }
+    }
+  ]
+}

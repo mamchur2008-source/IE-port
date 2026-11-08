@@ -1,0 +1,164 @@
+﻿{
+    "callbacks":  "immersiveengineering:drill",
+    "display":  {
+                    "firstperson_lefthand":  {
+                                                 "right_rotation":  [
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0
+                                                                    ],
+                                                 "rotation":  [
+                                                                  0.0,
+                                                                  -90.0,
+                                                                  0.0
+                                                              ],
+                                                 "scale":  [
+                                                               0.3749999,
+                                                               0.4374999,
+                                                               -0.3749999
+                                                           ],
+                                                 "translation":  [
+                                                                     -1.5000005,
+                                                                     6.999999,
+                                                                     2.9999995
+                                                                 ]
+                                             },
+                    "firstperson_righthand":  {
+                                                  "right_rotation":  [
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0
+                                                                     ],
+                                                  "rotation":  [
+                                                                   0.0,
+                                                                   90.0,
+                                                                   0.0
+                                                               ],
+                                                  "scale":  [
+                                                                0.3749999,
+                                                                0.4374999,
+                                                                0.3749999
+                                                            ],
+                                                  "translation":  [
+                                                                      -1.5000005,
+                                                                      6.999999,
+                                                                      3.0000005
+                                                                  ]
+                                              },
+                    "fixed":  {
+                                  "right_rotation":  [
+                                                         0.0,
+                                                         0.0,
+                                                         0.0
+                                                     ],
+                                  "rotation":  [
+                                                   0.0,
+                                                   0.0,
+                                                   -44.999977
+                                               ],
+                                  "scale":  [
+                                                0.43749976,
+                                                0.43749976,
+                                                0.43749976
+                                            ],
+                                  "translation":  [
+                                                      2.9999988,
+                                                      0.99999976,
+                                                      2.499999
+                                                  ]
+                              },
+                    "ground":  {
+                                   "right_rotation":  [
+                                                          0.0,
+                                                          0.0,
+                                                          0.0
+                                                      ],
+                                   "scale":  [
+                                                 0.5,
+                                                 0.5,
+                                                 0.5
+                                             ],
+                                   "translation":  [
+                                                       2.0,
+                                                       4.0,
+                                                       4.0
+                                                   ]
+                               },
+                    "gui":  {
+                                "right_rotation":  [
+                                                       0.0,
+                                                       0.0,
+                                                       0.0
+                                                   ],
+                                "rotation":  [
+                                                 180.0,
+                                                 -56.24998,
+                                                 157.49998
+                                             ],
+                                "scale":  [
+                                              0.75,
+                                              0.75,
+                                              0.7499999
+                                          ],
+                                "translation":  [
+                                                    -8.000001,
+                                                    3.9999993,
+                                                    -4.7683716E-07
+                                                ]
+                            },
+                    "thirdperson_lefthand":  {
+                                                 "right_rotation":  [
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0
+                                                                    ],
+                                                 "rotation":  [
+                                                                  81.99372,
+                                                                  -74.14155,
+                                                                  8.006248
+                                                              ],
+                                                 "scale":  [
+                                                               0.74999994,
+                                                               0.74999994,
+                                                               -0.7499997
+                                                           ],
+                                                 "translation":  [
+                                                                     1.0000006,
+                                                                     15.000001,
+                                                                     4.0
+                                                                 ]
+                                             },
+                    "thirdperson_righthand":  {
+                                                  "right_rotation":  [
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0
+                                                                     ],
+                                                  "rotation":  [
+                                                                   -98.00624,
+                                                                   74.14155,
+                                                                   171.99374
+                                                               ],
+                                                  "scale":  [
+                                                                0.74999994,
+                                                                0.74999994,
+                                                                0.7499997
+                                                            ],
+                                                  "translation":  [
+                                                                      0.9999999,
+                                                                      14.999999,
+                                                                      3.9999995
+                                                                  ]
+                                              }
+                },
+    "dynamic":  true,
+    "layers":  [
+                   "translucent"
+               ],
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/item/drill/drill_diesel.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:item/drill_diesel",
+                     "immersiveengineering:item/drill_diesel":  "immersiveengineering:item/drill_diesel"
+                 }
+}

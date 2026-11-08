@@ -1,0 +1,8 @@
+newmtl shelf
+map_Kd immersiveengineering:block/multiblocks/shelf
+
+newmtl crate
+map_Kd immersiveengineering:block/multiblocks/shelf_crate
+
+newmtl crate_reinforced
+map_Kd immersiveengineering:block/multiblocks/shelf_crate_reinforced

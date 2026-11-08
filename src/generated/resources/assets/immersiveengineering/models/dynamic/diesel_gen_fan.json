@@ -1,0 +1,8 @@
+﻿{
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/metal_multiblock/diesel_generator_fan.obj",
+    "textures":  {
+                     "immersiveengineering:block/multiblocks/diesel_generator":  "immersiveengineering:block/multiblocks/diesel_generator"
+                 }
+}

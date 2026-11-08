@@ -1,0 +1,55 @@
+{
+  "start": {
+    "type": "crafting",
+    "recipe": "crafting/blueprint_bullets"
+  },
+  "empty": {
+    "type": "crafting",
+    "recipes": [
+      [
+        "crafting/empty_casing",
+        "crafting/empty_shell"
+      ]
+    ]
+  },
+  "casull": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_casull"
+  },
+  "ap": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_armorpiercing"
+  },
+  "buckshot": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_buckshot"
+  },
+  "he": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_explosive"
+  },
+  "silver": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_silver"
+  },
+  "dragon": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_dragonsbreath"
+  },
+  "potion": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_potion"
+  },
+  "flare": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_flare_green"
+  },
+  "homing": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_homing"
+  },
+  "wolfpack": {
+    "type": "blueprint",
+    "recipe": "blueprint/bullet_wolfpack"
+  }
+}

@@ -1,0 +1,184 @@
+﻿{
+    "display":  {
+                    "firstperson_lefthand":  {
+                                                 "right_rotation":  [
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0
+                                                                    ],
+                                                 "rotation":  [
+                                                                  89.999985,
+                                                                  0.0,
+                                                                  180.0
+                                                              ],
+                                                 "scale":  [
+                                                               0.28124994,
+                                                               0.28124994,
+                                                               0.2812499
+                                                           ]
+                                             },
+                    "firstperson_righthand":  {
+                                                  "right_rotation":  [
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0
+                                                                     ],
+                                                  "rotation":  [
+                                                                   89.999985,
+                                                                   0.0,
+                                                                   180.0
+                                                               ],
+                                                  "scale":  [
+                                                                0.28124994,
+                                                                0.28124994,
+                                                                0.2812499
+                                                            ]
+                                              },
+                    "fixed":  {
+                                  "right_rotation":  [
+                                                         0.0,
+                                                         0.0,
+                                                         0.0
+                                                     ],
+                                  "rotation":  [
+                                                   89.999985,
+                                                   0.0,
+                                                   0.0
+                                               ],
+                                  "scale":  [
+                                                0.5624999,
+                                                0.5624999,
+                                                0.5624998
+                                            ],
+                                  "translation":  [
+                                                      0.0,
+                                                      -4.0,
+                                                      0.0
+                                                  ]
+                              },
+                    "ground":  {
+                                   "right_rotation":  [
+                                                          0.0,
+                                                          0.0,
+                                                          0.0
+                                                      ],
+                                   "rotation":  [
+                                                    89.999985,
+                                                    0.0,
+                                                    0.0
+                                                ],
+                                   "scale":  [
+                                                 0.28124994,
+                                                 0.28124994,
+                                                 0.2812499
+                                             ]
+                               },
+                    "gui":  {
+                                "right_rotation":  [
+                                                       0.0,
+                                                       0.0,
+                                                       0.0
+                                                   ],
+                                "rotation":  [
+                                                 120.0,
+                                                 -5.1226416E-06,
+                                                 -135.0
+                                             ],
+                                "scale":  [
+                                              0.42187494,
+                                              0.42187494,
+                                              0.42187488
+                                          ],
+                                "translation":  [
+                                                    0.0,
+                                                    -2.5,
+                                                    0.0
+                                                ]
+                            },
+                    "head":  {
+                                 "right_rotation":  [
+                                                        0.0,
+                                                        0.0,
+                                                        0.0
+                                                    ],
+                                 "rotation":  [
+                                                  89.999985,
+                                                  0.0,
+                                                  0.0
+                                              ],
+                                 "scale":  [
+                                               0.28124994,
+                                               0.28124994,
+                                               0.2812499
+                                           ]
+                             },
+                    "none":  {
+                                 "right_rotation":  [
+                                                        0.0,
+                                                        0.0,
+                                                        0.0
+                                                    ],
+                                 "rotation":  [
+                                                  89.999985,
+                                                  0.0,
+                                                  0.0
+                                              ],
+                                 "scale":  [
+                                               0.28124994,
+                                               0.28124994,
+                                               0.2812499
+                                           ]
+                             },
+                    "thirdperson_lefthand":  {
+                                                 "right_rotation":  [
+                                                                        0.0,
+                                                                        0.0,
+                                                                        0.0
+                                                                    ],
+                                                 "rotation":  [
+                                                                  160.0,
+                                                                  1.7075472E-06,
+                                                                  -70.0
+                                                              ],
+                                                 "scale":  [
+                                                               0.2812499,
+                                                               0.28125,
+                                                               0.28124994
+                                                           ],
+                                                 "translation":  [
+                                                                     0.0,
+                                                                     1.5,
+                                                                     -2.75
+                                                                 ]
+                                             },
+                    "thirdperson_righthand":  {
+                                                  "right_rotation":  [
+                                                                         0.0,
+                                                                         0.0,
+                                                                         0.0
+                                                                     ],
+                                                  "rotation":  [
+                                                                   160.0,
+                                                                   1.7075472E-06,
+                                                                   -70.0
+                                                               ],
+                                                  "scale":  [
+                                                                0.2812499,
+                                                                0.28125,
+                                                                0.28124994
+                                                            ],
+                                                  "translation":  [
+                                                                      0.0,
+                                                                      1.5,
+                                                                      -2.75
+                                                                  ]
+                                              }
+                },
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/metal_device/teslacoil.obj",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/metal_device/teslacoil",
+                     "immersiveengineering:block/metal_device/teslacoil":  "immersiveengineering:block/metal_device/teslacoil"
+                 }
+}

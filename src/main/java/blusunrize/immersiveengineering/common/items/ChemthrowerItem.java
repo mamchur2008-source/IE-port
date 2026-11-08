@@ -1,0 +1,316 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2017
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.items;
+
+import blusunrize.immersiveengineering.api.client.TextUtils;
+import blusunrize.immersiveengineering.api.shader.CapabilityShader;
+import blusunrize.immersiveengineering.api.shader.CapabilityShader.ShaderWrapper_Item;
+import blusunrize.immersiveengineering.api.tool.ChemthrowerHandler;
+import blusunrize.immersiveengineering.api.tool.upgrade.UpgradeEffect;
+import blusunrize.immersiveengineering.api.utils.codec.IEDualCodecs;
+import blusunrize.immersiveengineering.common.config.IEServerConfig;
+import blusunrize.immersiveengineering.common.entities.ChemthrowerShotEntity;
+import blusunrize.immersiveengineering.common.fluids.IEItemFluidHandler;
+import blusunrize.immersiveengineering.common.gui.IESlot.Upgrades;
+import blusunrize.immersiveengineering.common.items.IEItemInterfaces.IAdvancedFluidItem;
+import blusunrize.immersiveengineering.common.items.IEItemInterfaces.IScrollwheel;
+import blusunrize.immersiveengineering.common.items.ItemCapabilityRegistration.ItemCapabilityRegistrar;
+import blusunrize.immersiveengineering.common.register.IEDataComponents;
+import blusunrize.immersiveengineering.common.util.IESounds;
+import malte0811.dualcodecs.DualCodec;
+import malte0811.dualcodecs.DualCodecs;
+import malte0811.dualcodecs.DualCompositeCodecs;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.ItemUseAnimation;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.Tags.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.fluids.SimpleFluidContent;
+import net.neoforged.neoforge.items.IItemHandler;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.function.Supplier;
+
+import static blusunrize.immersiveengineering.api.IEApi.ieLoc;
+import static blusunrize.immersiveengineering.common.register.IEDataComponents.CHEMTHROWER_DATA;
+
+public class ChemthrowerItem extends UpgradeableToolItem implements IAdvancedFluidItem, IScrollwheel
+{
+	public static final String TYPE = "CHEMTHROWER";
+	private static final int CAPACITY = 2*FluidType.BUCKET_VOLUME;
+
+	public ChemthrowerItem()
+	{
+		super(itemProperties().stacksTo(1).component(CHEMTHROWER_DATA, ChemthrowerData.DEFAULT), TYPE, 4);
+	}
+
+	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag)
+	{
+		int cap = getCapacity(stack, CAPACITY);
+
+		int numberOfTanks = getUpgrades(stack).has(UpgradeEffect.MULTITANK)?3: 1;
+
+		for(int i = 0; i < numberOfTanks; i++)
+		{
+			Component add = IEItemFluidHandler.fluidItemInfoFlavor(getFluid(stack, i), cap);
+			if(i > 0)
+				TextUtils.applyFormat(
+						add,
+						ChatFormatting.GRAY
+				);
+			list.add(add);
+		}
+	}
+
+	@Nonnull
+	public ItemUseAnimation getUseAnimation(ItemStack stack)
+	{
+		return ItemUseAnimation.NONE;
+	}
+
+	public void removeFromWorkbench(Player player, ItemStack stack)
+	{
+//		ToDo: Make an Upgrade Advancement?
+//		if(contents[0]!=null&&contents[1]!=null&&contents[2]!=null&&contents[3]!=null)
+//			Utils.unlockIEAdvancement(player, "upgrade_chemthrower");
+	}
+
+	public InteractionResult use(Level world, Player player, InteractionHand hand)
+	{
+		ItemStack stack = player.getItemInHand(hand);
+		if(player.isShiftKeyDown())
+		{
+			if(!world.isClientSide())
+				setIgniteEnable(stack, !isIgniteEnable(stack));
+		}
+		else
+			player.startUsingItem(hand);
+		return InteractionResult.SUCCESS;
+	}
+
+	public void onUseTick(Level level, LivingEntity player, ItemStack stack, int remainingUseDuration)
+	{
+		FluidStack fs = this.getFluid(stack);
+		if(!fs.isEmpty())
+		{
+			int duration = getUseDuration(stack, player)-remainingUseDuration;
+			int consumed = IEServerConfig.TOOLS.chemthrower_consumption.get();
+			if(consumed*duration <= fs.getAmount())
+			{
+				Vec3 v = player.getLookAngle();
+				int split = 8;
+				boolean isGas = fs.getFluid().is(Fluids.GASEOUS);
+
+				float scatter = isGas?.25f: .15f;
+				float range = isGas?.5f: 1f;
+				if(getUpgrades(stack).has(UpgradeEffect.FOCUS))
+				{
+					range += .25f;
+					scatter = .025f;
+				}
+
+				boolean ignite = ChemthrowerHandler.isFlammable(fs.getFluid())&&isIgniteEnable(stack);
+				for(int i = 0; i < split; i++)
+				{
+					Vec3 vecDir = v.add(player.getRandom().nextGaussian()*scatter, player.getRandom().nextGaussian()*scatter, player.getRandom().nextGaussian()*scatter);
+					ChemthrowerShotEntity chem = new ChemthrowerShotEntity(player.level(), player, vecDir.x*0.25, vecDir.y*0.25, vecDir.z*0.25, fs);
+
+					// Apply momentum from the player.
+					chem.setDeltaMovement(player.getDeltaMovement().add(vecDir.scale(range)));
+
+					// Apply a small amount of backforce.
+					if(!player.onGround())
+						player.setDeltaMovement(player.getDeltaMovement().subtract(vecDir.scale(0.0025*range)));
+					if(ignite)
+						chem.igniteForSeconds(10);
+					if(!player.level().isClientSide())
+						player.level().addFreshEntity(chem);
+				}
+				if(remainingUseDuration%4==0)
+				{
+					if(ignite)
+						player.level().playSound(null, player.getX(), player.getY(), player.getZ(), IESounds.sprayFire.value(), SoundSource.PLAYERS, .5f, 1.5f);
+					else
+						player.level().playSound(null, player.getX(), player.getY(), player.getZ(), IESounds.spray.value(), SoundSource.PLAYERS, .5f, .75f);
+				}
+			}
+			else
+				player.releaseUsingItem();
+		}
+		else
+			player.releaseUsingItem();
+	}
+
+	public boolean releaseUsing(ItemStack stack, Level world, LivingEntity player, int timeLeft)
+	{
+		FluidStack fs = getFluid(stack);
+		if(fs.isEmpty())
+			return false;
+		int duration = getUseDuration(stack, player)-timeLeft;
+		fs.shrink(IEServerConfig.TOOLS.chemthrower_consumption.get()*duration);
+		stack.set(IEDataComponents.GENERIC_FLUID, SimpleFluidContent.copyOf(fs));
+		return true;
+	}
+
+	public int getUseDuration(ItemStack p_41454_, LivingEntity p_344979_)
+	{
+		return 72000;
+	}
+
+	public void onScrollwheel(ItemStack stack, Player playerEntity, boolean forward)
+	{
+		if(getUpgrades(stack).has(UpgradeEffect.MULTITANK))
+		{
+			List<FluidStack> fluids = new ArrayList<>(3);
+			for(int i = 0; i < 3; ++i)
+				fluids.add(getFluid(stack, i));
+			Collections.rotate(fluids, forward?1: -1);
+			for(int i = 0; i < 3; ++i)
+				setFluid(stack, i, fluids.get(i));
+		}
+	}
+
+	public void finishUpgradeRecalculation(ItemStack stack, RegistryAccess registries)
+	{
+		final var capacity = getCapacity(stack, CAPACITY);
+		for(int i = 0; i < 3; ++i)
+		{
+			FluidStack fs = getFluid(stack, i);
+			if(fs.getAmount() > capacity)
+				setFluid(stack, i, fs.copyWithAmount(capacity));
+		}
+	}
+
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged)
+	{
+		if(slotChanged||CapabilityShader.shouldReequipDueToShader(oldStack, newStack))
+			return true;
+		else
+			return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
+	}
+
+	public static void registerCapabilities(ItemCapabilityRegistrar registrar)
+	{
+		registerCapabilitiesISI(registrar);
+		registrar.register(Capabilities.Fluid.ITEM, (stack, context) -> IEItemFluidHandler.makeResourceHandler(stack, context, CAPACITY));
+		registrar.register(
+				CapabilityShader.ITEM,
+				stack -> new ShaderWrapper_Item(ieLoc("chemthrower"), stack)
+		);
+	}
+
+	public int getCapacity(ItemStack stack, int baseCapacity)
+	{
+		return baseCapacity+getUpgrades(stack).get(UpgradeEffect.CAPACITY);
+	}
+
+	public boolean canModify(ItemStack stack)
+	{
+		return true;
+	}
+
+	public Slot[] getWorkbenchSlots(AbstractContainerMenu container, ItemStack stack, Level level, Supplier<Player> getPlayer, IItemHandler toolInventory)
+	{
+		return new Slot[]{
+				new Upgrades(container, toolInventory, 0, 80, 32, TYPE, stack, true, level, getPlayer),
+				new Upgrades(container, toolInventory, 1, 100, 32, TYPE, stack, true, level, getPlayer)
+		};
+	}
+
+	public static void setIgniteEnable(ItemStack chemthrower, boolean enabled)
+	{
+		var data = getData(chemthrower);
+		chemthrower.set(CHEMTHROWER_DATA, new ChemthrowerData(enabled, data.fluid1, data.fluid2));
+	}
+
+	public static boolean isIgniteEnable(ItemStack chemthrower)
+	{
+		return getData(chemthrower).ignite;
+	}
+
+	private static void setFluid(ItemStack container, int index, FluidStack newFluid)
+	{
+		if(index==0)
+			container.set(IEDataComponents.GENERIC_FLUID, SimpleFluidContent.copyOf(newFluid));
+		else
+		{
+			var oldData = getData(container);
+			container.set(CHEMTHROWER_DATA, new ChemthrowerData(
+					oldData.ignite,
+					index==1?newFluid: oldData.fluid1,
+					index==2?newFluid: oldData.fluid2
+			));
+		}
+	}
+
+	private static FluidStack getFluid(ItemStack container, int index)
+	{
+		if(index==0)
+			return container.getOrDefault(IEDataComponents.GENERIC_FLUID, SimpleFluidContent.EMPTY).copy();
+		else
+		{
+			var data = getData(container);
+			return switch(index)
+			{
+				case 1 -> data.fluid1;
+				case 2 -> data.fluid2;
+				default -> throw new IllegalStateException("Unexpected value: "+index);
+			};
+		}
+	}
+
+	public FluidStack getFluid(ItemStack container)
+	{
+		return getFluid(container, 0);
+	}
+
+	private static ChemthrowerData getData(ItemStack chemthrower)
+	{
+		return chemthrower.getOrDefault(CHEMTHROWER_DATA, ChemthrowerData.DEFAULT);
+	}
+
+	public record ChemthrowerData(
+			boolean ignite, FluidStack fluid1, FluidStack fluid2
+	)
+	{
+		public static final DualCodec<RegistryFriendlyByteBuf, ChemthrowerData> CODECS = DualCompositeCodecs.composite(
+				DualCodecs.BOOL.fieldOf("ignite"), ChemthrowerData::ignite,
+				IEDualCodecs.FLUID_STACK.fieldOf("fluid1"), ChemthrowerData::fluid1,
+				IEDualCodecs.FLUID_STACK.fieldOf("fluid2"), ChemthrowerData::fluid2,
+				ChemthrowerData::new
+		);
+		public static final ChemthrowerData DEFAULT = new ChemthrowerData(
+				false, FluidStack.EMPTY, FluidStack.EMPTY
+		);
+
+		public ChemthrowerData
+		{
+			fluid1 = fluid1.copy();
+			fluid2 = fluid2.copy();
+		}
+	}
+}

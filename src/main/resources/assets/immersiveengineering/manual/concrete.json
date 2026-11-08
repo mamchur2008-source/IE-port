@@ -1,0 +1,71 @@
+{
+  "recipe": {
+    "type": "crafting",
+    "recipes": [
+      [
+        {
+          "recipe": "crafting/concrete"
+        },
+        {
+          "recipe": "crafting/concrete2"
+        }
+      ]
+    ]
+  },
+  "brick": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:concrete_brick"
+      },
+      {
+        "id": "immersiveengineering:concrete_brick_cracked"
+      },
+      {
+        "id": "immersiveengineering:concrete_pillar"
+      },
+      {
+        "id": "immersiveengineering:concrete_chiseled"
+      }
+    ]
+  },
+  "partial": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:concrete_sheet"
+      },
+      {
+        "id": "immersiveengineering:concrete_quarter"
+      },
+      {
+        "id": "immersiveengineering:slab_concrete"
+      },
+      {
+        "id": "immersiveengineering:concrete_three_quarter"
+      },
+      {
+        "id": "immersiveengineering:concrete_tile"
+      }
+    ]
+  },
+  "leaded": {
+    "type": "crafting",
+    "recipe": "crafting/concrete_leaded"
+  },
+  "reinforced": {
+    "type": "crafting",
+    "recipes": [
+      [
+        "crafting/concrete_reinforced",
+        "crafting/concrete_reinforced_tile"
+      ]
+    ]
+  },
+  "liquid": {
+    "type": "mixer",
+    "recipe": {
+      "fluid": "immersiveengineering:concrete"
+    }
+  }
+}

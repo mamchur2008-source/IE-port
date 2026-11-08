@@ -1,0 +1,12 @@
+﻿{
+    "type":  "vertical",
+    "base_name":  "immersiveengineering:block/wooden_device/barrel",
+    "loader":  "immersiveengineering:conf_sides",
+    "textures":  {
+                     "immersiveengineering:block/wooden_device/barrel_up_none":  "immersiveengineering:block/wooden_device/barrel_up_none",
+                     "immersiveengineering:block/wooden_device/barrel_up_in":  "immersiveengineering:block/wooden_device/barrel_up_in",
+                     "immersiveengineering:block/wooden_device/barrel_up_out":  "immersiveengineering:block/wooden_device/barrel_up_out",
+                     "immersiveengineering:block/wooden_device/barrel_side":  "immersiveengineering:block/wooden_device/barrel_side",
+                     "particle":  "immersiveengineering:block/wooden_device/barrel_up_none"
+                 }
+}

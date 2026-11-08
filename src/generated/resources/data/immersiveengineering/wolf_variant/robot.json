@@ -1,0 +1,17 @@
+{
+  "assets": {
+    "angry": "immersiveengineering:entity/wolf/robot_angry",
+    "tame": "immersiveengineering:entity/wolf/robot_tame",
+    "wild": "immersiveengineering:entity/wolf/robot"
+  },
+  "baby_assets": {
+    "angry": "immersiveengineering:entity/wolf/robot_angry",
+    "tame": "immersiveengineering:entity/wolf/robot_tame",
+    "wild": "immersiveengineering:entity/wolf/robot"
+  },
+  "spawn_conditions": [
+    {
+      "priority": 0
+    }
+  ]
+}

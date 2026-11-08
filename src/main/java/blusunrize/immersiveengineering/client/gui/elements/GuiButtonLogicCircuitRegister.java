@@ -1,0 +1,118 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2024
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.client.gui.elements;
+
+import blusunrize.immersiveengineering.api.tool.LogicCircuitHandler.LogicCircuitRegister;
+import blusunrize.immersiveengineering.client.gui.elements.GuiButtonIE.ButtonTexture;
+import blusunrize.immersiveengineering.client.gui.elements.GuiButtonIE.IIEPressable;
+import blusunrize.immersiveengineering.client.utils.GuiHelper;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.DyeColor;
+import org.apache.commons.lang3.mutable.MutableInt;
+
+import java.util.List;
+import java.util.Locale;
+
+import static blusunrize.immersiveengineering.api.IEApi.ieLoc;
+
+public class GuiButtonLogicCircuitRegister extends GuiButtonState<LogicCircuitRegister> implements ITooltipWidget
+{
+	private static final ButtonTexture TEXTURE = new ButtonTexture(ieLoc("circuit_table/register_button"));
+	private final MutableInt state;
+
+	public static GuiButtonLogicCircuitRegister create(
+			int x, int y, Component name, IIEPressable<GuiButtonState<LogicCircuitRegister>> handler
+	)
+	{
+		final MutableInt state = new MutableInt();
+		return new GuiButtonLogicCircuitRegister(x, y, name, btn -> {
+			state.setValue(btn.getNextStateInt());
+			handler.onIEPress(btn);
+		}, state);
+	}
+
+	private GuiButtonLogicCircuitRegister(
+			int x, int y, Component name, IIEPressable<GuiButtonState<LogicCircuitRegister>> handler, MutableInt state
+	)
+	{
+		super(x, y, 18, 18, name, LogicCircuitRegister.values(), state::getValue, allSame(LogicCircuitRegister.values(), TEXTURE), handler);
+		this.textOffset = new int[]{3, 5};
+		this.state = state;
+	}
+
+	public Component getMessage()
+	{
+		LogicCircuitRegister state = getState();
+		if(state.ordinal() >= 16)
+			return Component.literal(state.name());
+		return Component.empty();
+	}
+
+	public void gatherTooltip(int mouseX, int mouseY, List<Component> tooltip)
+	{
+		tooltip.add(getState().getDescription());
+	}
+
+	public void renderWidget(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks)
+	{
+		super.renderWidget(graphics, mouseX, mouseY, partialTicks);
+		LogicCircuitRegister state = getState();
+		if(state.ordinal() < 16)
+			GuiHelper.drawColouredRect(graphics, getX()+3, getY()+3, 12, 12, DyeColor.byId(state.ordinal()));
+	}
+
+	public void setState(int state)
+	{
+		this.state.setValue(state);
+	}
+
+	private static final ListMultimap<Character, Integer> SPLIT_BY_INITIAL = ArrayListMultimap.create(11, 2);
+
+	static
+	{
+		for(DyeColor dye : DyeColor.values())
+		{
+			String transl = I18n.get("color.minecraft."+dye.getName()).toLowerCase(Locale.ROOT);
+			SPLIT_BY_INITIAL.get(transl.charAt(0)).add(dye.getId());
+		}
+	}
+
+	public boolean charTyped(char codePoint, int modifiers)
+	{
+		codePoint = Character.toLowerCase(codePoint);
+		if(Character.isDigit(codePoint))
+		{
+			int number = Character.digit(codePoint, 10);
+			if(number >= 0&&number < 8)
+			{
+				this.state.setValue(number+15); // plus 15 colors, the final increment is done by onPress
+				this.onPress.onPress(this);
+				return true;
+			}
+		}
+		else if(Character.isAlphabetic(codePoint))
+		{
+			List<Integer> options = SPLIT_BY_INITIAL.get(codePoint);
+			if(!options.isEmpty())
+			{
+				int next = (options.indexOf(this.getStateAsInt())+1)%options.size();
+				// subtract one because final increment is done by onPress
+				int stateIdx = Math.floorMod(options.get(next)-1, states.length);
+				this.state.setValue(stateIdx);
+				this.onPress.onPress(this);
+				return true;
+			}
+		}
+		return false;
+	}
+}

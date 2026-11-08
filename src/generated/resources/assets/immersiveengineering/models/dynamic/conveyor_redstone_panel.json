@@ -1,0 +1,8 @@
+﻿{
+    "callbacks":  "immersiveengineering:submodel",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/conveyor_redstone.obj.ie",
+    "textures":  {
+                     "immersiveengineering:block/conveyor/redstone":  "immersiveengineering:block/conveyor/redstone"
+                 }
+}

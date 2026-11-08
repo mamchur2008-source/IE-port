@@ -1,0 +1,35 @@
+{
+  "multiblock": {
+    "type": "multiblock",
+    "name": "multiblocks/bottling_machine"
+  },
+  "potions": {
+    "type": "bottling",
+    "recipes": [
+      {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:awkward"
+          }
+        }
+      },
+      {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:strength"
+          }
+        }
+      },
+      {
+        "id": "minecraft:potion",
+        "components": {
+          "minecraft:potion_contents": {
+            "potion": "minecraft:swiftness"
+          }
+        }
+      }
+    ]
+  }
+}

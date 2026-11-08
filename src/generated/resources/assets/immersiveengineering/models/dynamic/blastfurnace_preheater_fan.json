@@ -1,0 +1,8 @@
+﻿{
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/metal_device/blastfurnace_fan.obj",
+    "textures":  {
+                     "immersiveengineering:block/metal_device/blast_furnace_preheater":  "immersiveengineering:block/metal_device/blast_furnace_preheater"
+                 }
+}

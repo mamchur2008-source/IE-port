@@ -1,0 +1,72 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2022
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.client.models.mirror;
+
+import blusunrize.immersiveengineering.api.client.ICacheKeyProvider;
+import blusunrize.immersiveengineering.client.models.CompositeBakedModel;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.model.data.ModelData;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+public class CachedMirroredModel<K, T extends BakedModel & ICacheKeyProvider<K>> extends CompositeBakedModel<T> implements ICacheKeyProvider<K>
+{
+	private final LoadingCache<K, List<BakedQuad>> cache;
+
+	public CachedMirroredModel(T base)
+	{
+		super(base);
+		this.cache = CacheBuilder.newBuilder()
+				.expireAfterAccess(120, TimeUnit.SECONDS)
+				.build(CacheLoader.from(k -> MirroredModelLoader.reversedQuads(base.getQuads(k))));
+	}
+
+	public List<BakedQuad> getQuads(K key)
+	{
+		if(key!=null)
+			return cache.getUnchecked(key);
+		else
+			return List.of();
+	}
+
+	@Nullable
+	public K getKey(
+			@Nullable BlockState state,
+			@Nullable Direction side,
+			@Nonnull RandomSource rand,
+			@Nonnull ModelData extraData,
+			@Nullable RenderType layer
+	)
+	{
+		return base.getKey(state, side, rand, extraData, layer);
+	}
+
+	@Nonnull
+	public List<BakedQuad> getQuads(
+			@Nullable BlockState pState,
+			@Nullable Direction pSide,
+			@Nonnull RandomSource pRand,
+			@Nonnull ModelData extraData,
+			@Nullable RenderType layer
+	)
+	{
+		return getQuads(getKey(pState, pSide, pRand, extraData, layer));
+	}
+}

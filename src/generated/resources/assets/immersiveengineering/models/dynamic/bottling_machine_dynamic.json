@@ -1,0 +1,11 @@
+﻿{
+    "callbacks":  "immersiveengineering:submodel",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/metal_multiblock/bottling_machine_animated.obj.ie",
+    "textures":  {
+                     "immersiveengineering:block/multiblocks/bottling_machine":  "immersiveengineering:block/multiblocks/bottling_machine",
+                     "immersiveengineering:block/conveyor/conveyor":  "immersiveengineering:block/conveyor/conveyor",
+                     "immersiveengineering:block/multiblocks/multiblock_base":  "immersiveengineering:block/multiblocks/multiblock_base",
+                     "immersiveengineering:block/multiblocks/multiblock_components":  "immersiveengineering:block/multiblocks/multiblock_components"
+                 }
+}

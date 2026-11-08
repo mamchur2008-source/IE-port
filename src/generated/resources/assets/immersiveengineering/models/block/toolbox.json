@@ -1,0 +1,11 @@
+{
+  "parent": "minecraft:block/block",
+  "automatic_culling": false,
+  "flip_v": true,
+  "loader": "neoforge:obj",
+  "model": "immersiveengineering:models/block/toolbox.obj",
+  "textures": {
+    "particle": "immersiveengineering:block/metal_decoration/toolbox",
+    "texture": "immersiveengineering:block/metal_decoration/toolbox"
+  }
+}

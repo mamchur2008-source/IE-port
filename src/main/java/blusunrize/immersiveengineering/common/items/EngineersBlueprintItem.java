@@ -1,0 +1,82 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2017
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.items;
+
+import blusunrize.immersiveengineering.ImmersiveEngineering;
+import blusunrize.immersiveengineering.api.IEApiDataComponents;
+import blusunrize.immersiveengineering.api.Lib;
+import blusunrize.immersiveengineering.api.crafting.BlueprintCraftingRecipe;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.CreativeModeTab.Output;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.level.Level;
+
+import javax.annotation.Nonnull;
+import java.util.List;
+
+import static blusunrize.immersiveengineering.api.IEApiDataComponents.BLUEPRINT_TYPE;
+
+public class EngineersBlueprintItem extends IEBaseItem
+{
+	public EngineersBlueprintItem()
+	{
+		super(itemProperties().stacksTo(1));
+	}
+
+	public void appendHoverText(ItemStack stack, TooltipContext ctx, List<Component> list, TooltipFlag flag)
+	{
+		String key = IEApiDataComponents.getBlueprintType(stack);
+		if(key.isEmpty())
+			return;
+		String formatKey = Lib.DESC_INFO+"blueprint."+key;
+		String formatted = I18n.get(formatKey);
+		if(formatKey.equals(formatted))
+			list.add(Component.literal(key).withStyle(ChatFormatting.GRAY));
+		else
+			list.add(Component.translatable(formatKey).withStyle(ChatFormatting.GRAY));
+		final var world = ImmersiveEngineering.proxy.getClientWorld();
+		if(world==null)
+			return;
+		List<RecipeHolder<BlueprintCraftingRecipe>> recipes = BlueprintCraftingRecipe.findRecipes(world, key);
+		if(recipes.isEmpty())
+			return;
+		if(net.minecraft.client.Minecraft.getInstance().options.keyShift.isDown())
+		{
+			list.add(Component.translatable(Lib.DESC_INFO+"blueprint.creates1").withStyle(ChatFormatting.GRAY));
+			for(RecipeHolder<BlueprintCraftingRecipe> recipe : recipes)
+				list.add(Component.literal(" ").append(recipe.value().output.get().getHoverName()).withStyle(ChatFormatting.DARK_GRAY));
+		}
+		else
+			list.add(Component.translatable(Lib.DESC_INFO+"blueprint.creates0").withStyle(ChatFormatting.GRAY));
+	}
+
+
+	public void fillCreativeTab(Output out)
+	{
+		final Level level = ImmersiveEngineering.proxy.getClientWorld();
+		if(level!=null)
+			for(String key : BlueprintCraftingRecipe.getCategoriesWithRecipes(level))
+			{
+				ItemStack stack = new ItemStack(this);
+				stack.set(BLUEPRINT_TYPE, key);
+				out.accept(stack);
+			}
+	}
+
+	@Nonnull
+	public static List<RecipeHolder<BlueprintCraftingRecipe>> getRecipes(Level level, ItemStack stack)
+	{
+		return BlueprintCraftingRecipe.findRecipes(level, IEApiDataComponents.getBlueprintType(stack));
+	}
+}

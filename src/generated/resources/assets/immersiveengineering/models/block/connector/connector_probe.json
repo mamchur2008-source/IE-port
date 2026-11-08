@@ -1,0 +1,14 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "callbacks":  "immersiveengineering:probe",
+    "layers":  [
+                   "cutout",
+                   "translucent"
+               ],
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/connector/connector_probe.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/connector/connector_probe",
+                     "immersiveengineering:block/connector/connector_probe":  "immersiveengineering:block/connector/connector_probe"
+                 }
+}

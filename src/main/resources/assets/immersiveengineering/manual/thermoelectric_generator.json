@@ -1,0 +1,10 @@
+{
+  "recipe": {
+    "type": "crafting",
+    "recipe": "crafting/thermoelectric_generator"
+  },
+  "values": {
+    "type": "dynamic_table",
+    "table": "thermoelectric"
+  }
+}

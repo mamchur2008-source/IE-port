@@ -1,0 +1,10 @@
+{
+  "start": {
+    "type": "multiblock",
+    "name": "multiblocks/squeezer"
+  },
+  "list": {
+    "type": "dynamic_table",
+    "table": "squeezer"
+  }
+}

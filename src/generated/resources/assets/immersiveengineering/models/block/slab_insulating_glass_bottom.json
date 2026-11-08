@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:block/slab",
+  "render_type": "minecraft:translucent",
+  "textures": {
+    "bottom": "immersiveengineering:block/stone_decoration/insulating_glass",
+    "side": "immersiveengineering:block/stone_decoration/insulating_glass",
+    "top": "immersiveengineering:block/stone_decoration/insulating_glass"
+  }
+}

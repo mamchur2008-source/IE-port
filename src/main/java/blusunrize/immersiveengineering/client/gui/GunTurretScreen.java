@@ -1,0 +1,70 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2019
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.client.gui;
+
+import blusunrize.immersiveengineering.api.Lib;
+import blusunrize.immersiveengineering.client.gui.elements.GuiButtonBoolean;
+import blusunrize.immersiveengineering.client.gui.elements.GuiButtonIE.ButtonTexture;
+import blusunrize.immersiveengineering.client.gui.info.InfoArea;
+import blusunrize.immersiveengineering.client.gui.info.TooltipArea;
+import blusunrize.immersiveengineering.client.utils.GuiHelper;
+import blusunrize.immersiveengineering.common.gui.TurretMenu.GunTurretMenu;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.entity.player.Inventory;
+
+import javax.annotation.Nonnull;
+import java.util.ArrayList;
+import java.util.List;
+
+import static blusunrize.immersiveengineering.api.IEApi.ieLoc;
+
+public class GunTurretScreen extends TurretScreen<GunTurretMenu>
+{
+	private static final ButtonTexture NO_EJECT = new ButtonTexture(ieLoc("turret/no_eject"));
+	private static final ButtonTexture EJECT = new ButtonTexture(ieLoc("turret/eject"));
+
+	public GunTurretScreen(GunTurretMenu container, Inventory inventoryPlayer, Component title)
+	{
+		super(container, inventoryPlayer, title);
+	}
+
+	@Nonnull
+	protected List<InfoArea> makeInfoAreas()
+	{
+		List<InfoArea> result = new ArrayList<>(super.makeInfoAreas());
+		result.add(new TooltipArea(
+				new Rect2i(leftPos+134, topPos+31, 16, 16),
+				() -> Component.translatable(Lib.GUI_CONFIG+"turret.expel_casings_"+(menu.expelCasings.get()?"on": "off"))
+		));
+		return result;
+	}
+
+	protected void drawContainerBackgroundPre(@Nonnull GuiGraphicsExtractor graphics, float f, int mx, int my)
+	{
+		super.drawContainerBackgroundPre(graphics, f, mx, my);
+		GuiHelper.drawDarkSlot(graphics, leftPos+134, topPos+13, 16, 16);
+		GuiHelper.drawDarkSlot(graphics, leftPos+134, topPos+49, 16, 16);
+	}
+
+	protected void addCustomButtons()
+	{
+		this.addRenderableWidget(new GuiButtonBoolean(
+				leftPos+134, topPos+31, 16, 16, Component.empty(), menu.expelCasings, NO_EJECT, EJECT,
+				btn -> {
+					CompoundTag tag = new CompoundTag();
+					int listOffset = -1;
+					tag.putBoolean("expelCasings", btn.getNextState());
+					handleButtonClick(tag, listOffset);
+				}
+		));
+	}
+}

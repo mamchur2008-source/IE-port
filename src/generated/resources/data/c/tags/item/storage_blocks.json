@@ -1,0 +1,17 @@
+{
+  "values": [
+    "#c:storage_blocks/aluminum",
+    "#c:storage_blocks/raw_aluminum",
+    "#c:storage_blocks/lead",
+    "#c:storage_blocks/raw_lead",
+    "#c:storage_blocks/silver",
+    "#c:storage_blocks/raw_silver",
+    "#c:storage_blocks/nickel",
+    "#c:storage_blocks/raw_nickel",
+    "#c:storage_blocks/uranium",
+    "#c:storage_blocks/raw_uranium",
+    "#c:storage_blocks/constantan",
+    "#c:storage_blocks/electrum",
+    "#c:storage_blocks/steel"
+  ]
+}

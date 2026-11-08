@@ -1,0 +1,26 @@
+{
+  "type": "immersiveengineering:add_drop",
+  "conditions": [
+    {
+      "chance": 0.1,
+      "condition": "minecraft:random_chance"
+    },
+    {
+      "condition": "minecraft:inverted",
+      "term": {
+        "condition": "minecraft:match_tool",
+        "predicate": {
+          "items": "#c:tools/shear"
+        }
+      }
+    },
+    {
+      "block": "minecraft:tall_grass",
+      "condition": "minecraft:block_state_property"
+    }
+  ],
+  "item": {
+    "count": 1,
+    "id": "immersiveengineering:seed"
+  }
+}

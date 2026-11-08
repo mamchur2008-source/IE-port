@@ -1,0 +1,200 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2017
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+
+package blusunrize.immersiveengineering.common.blocks.metal;
+
+import blusunrize.immersiveengineering.api.IEApi;
+import blusunrize.immersiveengineering.api.IEProperties;
+import blusunrize.immersiveengineering.api.utils.codec.IECodecs;
+import blusunrize.immersiveengineering.common.blocks.IEBaseBlockEntity;
+import blusunrize.immersiveengineering.common.blocks.IEBlockInterfaces.*;
+import blusunrize.immersiveengineering.common.blocks.PlacementLimitation;
+import blusunrize.immersiveengineering.common.items.InternalStorageItem;
+import blusunrize.immersiveengineering.common.items.ToolboxItem;
+import blusunrize.immersiveengineering.common.register.IEBlockEntities;
+import blusunrize.immersiveengineering.common.register.IEItems.Tools;
+import blusunrize.immersiveengineering.common.register.IEMenuTypes;
+import blusunrize.immersiveengineering.common.register.IEMenuTypes.ArgContainer;
+import blusunrize.immersiveengineering.common.util.inventory.IIEInventory;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Direction.Axis;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+
+import javax.annotation.Nullable;
+import java.util.function.Consumer;
+
+public class ToolboxBlockEntity extends IEBaseBlockEntity implements IStateBasedDirectional, IBlockBounds, IIEInventory,
+		IInteractionObjectIE<ToolboxBlockEntity>, IBlockEntityDrop, IPlayerInteraction
+{
+	private final NonNullList<ItemStack> inventory = NonNullList.withSize(ToolboxItem.SLOT_COUNT, ItemStack.EMPTY);
+	public Component name;
+	private ItemEnchantments enchantments = ItemEnchantments.EMPTY;
+
+	public ToolboxBlockEntity(BlockPos pos, BlockState state)
+	{
+		super(IEBlockEntities.TOOLBOX.get(), pos, state);
+	}
+
+	public void readCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+	{
+		if(nbt.contains("name"))
+			this.name = Component.literal(nbt.getStringOr("name", ""));
+		this.enchantments = IECodecs.fromNbtOrThrow(ItemEnchantments.CODEC, nbt.get("enchantments"));
+		if(!descPacket)
+			blusunrize.immersiveengineering.common.util.ContainerHelperCompat.loadAllItems(nbt, inventory, provider);
+	}
+
+	public void writeCustomNBT(CompoundTag nbt, boolean descPacket, Provider provider)
+	{
+		if(this.name!=null)
+			nbt.putString("name", this.name.getString());
+		nbt.put("enchantments", IECodecs.toNbtOrThrow(ItemEnchantments.CODEC, this.enchantments));
+		if(!descPacket)
+			blusunrize.immersiveengineering.common.util.ContainerHelperCompat.saveAllItems(nbt, inventory, provider);
+	}
+
+	public InteractionResult interact(Direction side, Player player, InteractionHand hand, ItemStack heldItem, float hitX, float hitY, float hitZ)
+	{
+		if(player.isShiftKeyDown())
+		{
+			if(!level.isClientSide())
+			{
+				ItemEntity entityitem = new ItemEntity(level, player.getX(), player.getY(), player.getZ(),
+				    getPickBlock(player, getBlockState(), new BlockHitResult(new Vec3(hitX, hitY, hitZ), side, worldPosition, false)),
+				    0, 0, 0);
+				level.removeBlock(getBlockPos(), false);
+				level.addFreshEntity(entityitem);
+			}
+			return InteractionResult.SUCCESS;
+		}
+		return InteractionResult.PASS;
+	}
+
+	public Component getDisplayName()
+	{
+		return name!=null?name: Component.translatable("item.immersiveengineering.toolbox.name");
+	}
+
+	public boolean canUseGui(Player player)
+	{
+		return true;
+	}
+
+	public ToolboxBlockEntity getGuiMaster()
+	{
+		return this;
+	}
+
+	public ArgContainer<ToolboxBlockEntity, ?> getContainerType()
+	{
+		return IEMenuTypes.TOOLBOX_BLOCK;
+	}
+
+	public NonNullList<ItemStack> getInventory()
+	{
+		return inventory;
+	}
+
+	public boolean isStackValid(int slot, ItemStack stack)
+	{
+		return IEApi.isAllowedInCrate(stack);
+	}
+
+	public int getSlotLimit(int slot)
+	{
+		return 64;
+	}
+
+	public void doGraphicalUpdates()
+	{
+		this.setChanged();
+	}
+
+	public void getBlockEntityDrop(LootContext context, Consumer<ItemStack> drop)
+	{
+		ItemStack stack = new ItemStack(Tools.TOOLBOX);
+		Tools.TOOLBOX.get().setContainedItems(stack, inventory);
+		if(this.name!=null)
+			stack.set(DataComponents.CUSTOM_NAME, this.name);
+		if(enchantments!=null)
+			stack.set(DataComponents.ENCHANTMENTS, enchantments);
+		drop.accept(stack);
+	}
+
+	public void onBEPlaced(BlockPlaceContext ctx)
+	{
+		final ItemStack stack = ctx.getItemInHand();
+		if(stack.getItem() instanceof InternalStorageItem)
+		{
+			IItemHandler inv = blusunrize.immersiveengineering.common.util.CapabilityCompat.getItemCapability(stack, Capabilities.Item.ITEM);
+			if(inv!=null)
+			{
+				for(int i = 0; i < inv.getSlots(); i++)
+					inventory.set(i, inv.getStackInSlot(i));
+				this.setChanged();
+			}
+
+			if(stack.has(DataComponents.CUSTOM_NAME))
+				this.name = stack.getHoverName();
+			enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
+		}
+	}
+
+	public Property<Direction> getFacingProperty()
+	{
+		return IEProperties.FACING_HORIZONTAL;
+	}
+
+	public PlacementLimitation getFacingLimitation()
+	{
+		return PlacementLimitation.HORIZONTAL;
+	}
+
+	public boolean mirrorFacingOnPlacement(LivingEntity placer)
+	{
+		return true;
+	}
+
+	public boolean canHammerRotate(Direction side, Vec3 hit, LivingEntity entity)
+	{
+		return false;
+	}
+
+	private static final VoxelShape boundsZ = Shapes.box(.125f, 0, .25f, .875f, .625f, .75f);
+	private static final VoxelShape boundsX = Shapes.box(.25f, 0, .125f, .75f, .625f, .875f);
+
+	public VoxelShape getBlockBounds(@Nullable CollisionContext ctx)
+	{
+		return getFacing().getAxis()==Axis.Z?boundsZ: boundsX;
+	}
+}

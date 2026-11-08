@@ -1,0 +1,40 @@
+{
+  "recipes": {
+    "type": "crafting",
+    "recipes": [
+      [
+        {
+          "recipe": "crafting/buzzsaw"
+        },
+        {
+          "recipe": "crafting/sawblade"
+        },
+        {
+          "recipe": "crafting/wooden_grip"
+        }
+      ]
+    ]
+  },
+  "rockcutter_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/rockcutter"
+  },
+  "grinding_recipe": {
+    "type": "bottling",
+    "recipe": {
+      "id": "immersiveengineering:grindingdisk"
+    }
+  },
+  "tank_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_drill_capacity"
+  },
+  "lube_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_drill_lube"
+  },
+  "quiver_recipe": {
+    "type": "crafting",
+    "recipe": "crafting/toolupgrade_buzzsaw_spareblades"
+  }
+}

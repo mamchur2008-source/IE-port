@@ -1,0 +1,10 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "callbacks":  "immersiveengineering:lantern",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/lantern.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/metal_decoration/lantern",
+                     "immersiveengineering:block/metal_decoration/lantern":  "immersiveengineering:block/metal_decoration/lantern"
+                 }
+}

@@ -1,0 +1,23 @@
+{
+  "variants": {
+    "facing=east": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/e_meter_split",
+      "y": 270
+    },
+    "facing=north": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/e_meter_split",
+      "y": 180
+    },
+    "facing=south": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/e_meter_split"
+    },
+    "facing=west": {
+      "type": "immersiveengineering:basic_split",
+      "model": "immersiveengineering:block/connector/e_meter_split",
+      "y": 90
+    }
+  }
+}

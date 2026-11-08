@@ -1,0 +1,8 @@
+﻿{
+    "flip_v":  true,
+    "loader":  "neoforge:obj",
+    "model":  "immersiveengineering:models/block/wooden_device/watermill.obj",
+    "textures":  {
+                     "immersiveengineering:block/wooden_device/watermill":  "immersiveengineering:block/wooden_device/watermill"
+                 }
+}

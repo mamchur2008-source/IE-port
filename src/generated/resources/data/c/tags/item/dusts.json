@@ -1,0 +1,15 @@
+{
+  "values": [
+    "#c:dusts/copper",
+    "#c:dusts/aluminum",
+    "#c:dusts/lead",
+    "#c:dusts/silver",
+    "#c:dusts/nickel",
+    "#c:dusts/uranium",
+    "#c:dusts/constantan",
+    "#c:dusts/electrum",
+    "#c:dusts/steel",
+    "#c:dusts/iron",
+    "#c:dusts/gold"
+  ]
+}

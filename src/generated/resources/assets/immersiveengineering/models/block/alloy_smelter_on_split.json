@@ -1,0 +1,64 @@
+{
+  "parent": "minecraft:block/block",
+  "dynamic": false,
+  "inner_model": {
+    "parent": "minecraft:block/block",
+    "automatic_culling": false,
+    "flip_v": true,
+    "loader": "neoforge:obj",
+    "model": "immersiveengineering:models/block/stone_multiblocks/cube_two.obj",
+    "textures": {
+      "bottom": "immersiveengineering:block/multiblocks/alloy_smelter_bottom",
+      "front": "immersiveengineering:block/multiblocks/alloy_smelter_on",
+      "particle": "immersiveengineering:block/multiblocks/alloy_smelter_on",
+      "side": "immersiveengineering:block/multiblocks/alloy_smelter_side",
+      "top": "immersiveengineering:block/multiblocks/alloy_smelter_top"
+    }
+  },
+  "loader": "immersiveengineering:basic_split",
+  "split_parts": [
+    [
+      0,
+      0,
+      -1
+    ],
+    [
+      1,
+      0,
+      -1
+    ],
+    [
+      0,
+      1,
+      -1
+    ],
+    [
+      1,
+      1,
+      -1
+    ],
+    [
+      0,
+      0,
+      0
+    ],
+    [
+      1,
+      0,
+      0
+    ],
+    [
+      0,
+      1,
+      0
+    ],
+    [
+      1,
+      1,
+      0
+    ]
+  ],
+  "textures": {
+    "particle": "immersiveengineering:block/multiblocks/alloy_smelter_on"
+  }
+}

@@ -1,0 +1,10 @@
+﻿{
+    "parent":  "minecraft:block/block",
+    "callbacks":  "immersiveengineering:breaker",
+    "loader":  "immersiveengineering:ie_obj",
+    "model":  "immersiveengineering:models/block/connector/breaker_switch_off.obj.ie",
+    "textures":  {
+                     "particle":  "immersiveengineering:block/connector/breaker_switch",
+                     "immersiveengineering:block/connector/breaker_switch":  "immersiveengineering:block/connector/breaker_switch"
+                 }
+}

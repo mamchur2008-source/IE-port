@@ -1,0 +1,73 @@
+/*
+ * BluSunrize
+ * Copyright (c) 2022
+ *
+ * This code is licensed under "Blu's License of Common Sense"
+ * Details can be found in the license file in the root folder of this project
+ */
+package blusunrize.immersiveengineering.common.util.compat.crafttweaker.managers;
+
+import blusunrize.immersiveengineering.api.crafting.CokeOvenRecipe;
+import blusunrize.immersiveengineering.api.crafting.IERecipeTypes;
+import blusunrize.immersiveengineering.api.crafting.IngredientWithSize;
+import blusunrize.immersiveengineering.common.util.compat.crafttweaker.CrTIngredientUtil;
+import com.blamejared.crafttweaker.api.CraftTweakerAPI;
+import com.blamejared.crafttweaker.api.action.recipe.ActionAddRecipe;
+import com.blamejared.crafttweaker.api.annotation.ZenRegister;
+import com.blamejared.crafttweaker.api.ingredient.IIngredientWithAmount;
+import com.blamejared.crafttweaker.api.item.IItemStack;
+import com.blamejared.crafttweaker.api.recipe.manager.base.IRecipeManager;
+import com.blamejared.crafttweaker_annotations.annotations.Document;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import org.openzen.zencode.java.ZenCodeType;
+
+import static blusunrize.immersiveengineering.api.crafting.IESerializableRecipe.of;
+
+/**
+ * Allows you to add or remove Coke Oven recipes.
+ * <p>
+ * Coke Oven recipes consist of an input, an output and the amount of creosote produced
+ *
+ * @docParam this <recipetype:immersiveengineering:coke_oven>
+ */
+@ZenRegister
+@Document("mods/immersiveengineering/CokeOven")
+@ZenCodeType.Name("mods.immersiveengineering.CokeOven")
+public class CokeOvenRecipeManager implements IRecipeManager<CokeOvenRecipe>
+{
+
+	@Override
+	public RecipeType<CokeOvenRecipe> getRecipeType()
+	{
+		return IERecipeTypes.COKE_OVEN.get();
+	}
+
+	/**
+	 * Adds a coke oven recipe
+	 *
+	 * @param recipePath       RecipePath The recipe name, without the resource location
+	 * @param ingredient       The recipe's input
+	 * @param time             The time the recipe requires, in ticks
+	 * @param output           The produced item
+	 * @param creosoteProduced The amount of creosote produced
+	 * @docParam recipePath "burn_a_stick"
+	 * @docParam ingredient <item:minecraft:stick>
+	 * @docParam time 100
+	 * @docParam output <item:immersiveengineering:stick_treated>
+	 * @docParam creosoteProduced 1
+	 */
+	@ZenCodeType.Method
+	public void addRecipe(String recipePath, IIngredientWithAmount ingredient, int time, IItemStack output, @ZenCodeType.OptionalInt int creosoteProduced)
+	{
+		final Identifier Identifier = new Identifier("crafttweaker", recipePath);
+		final IngredientWithSize ingredientWithSize = CrTIngredientUtil.getIngredientWithSize(ingredient);
+		final ItemStack result = output.getInternal();
+
+		final CokeOvenRecipe recipe = new CokeOvenRecipe(
+				Identifier, of(result), ingredientWithSize, time, creosoteProduced
+		);
+		CraftTweakerAPI.apply(new ActionAddRecipe<>(this, recipe, null));
+	}
+}

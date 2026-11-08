@@ -1,0 +1,131 @@
+{
+  "recipe": {
+    "type": "crafting",
+    "recipe": "crafting/earmuffs"
+  },
+  "color_and_armor": {
+    "type": "crafting",
+    "recipes": [
+      [
+        [
+          {
+            "x": 24,
+            "y": 0,
+            "id": "immersiveengineering:earmuffs"
+          },
+          {
+            "x": 42,
+            "y": 0,
+            "stacks": [
+              {
+                "id": "minecraft:white_dye"
+              },
+              {
+                "id": "minecraft:red_dye"
+              },
+              {
+                "id": "minecraft:green_dye"
+              },
+              {
+                "id": "minecraft:blue_dye"
+              }
+            ]
+          },
+          {
+            "x": 78,
+            "y": 0,
+            "stacks": [
+              {
+                "id": "immersiveengineering:earmuffs",
+                "components": {
+                  "immersiveengineering:color": {
+                    "a": 1,
+                    "r": 0.9764705882352941,
+                    "g": 1.0,
+                    "b": 0.996078431372549
+                  }
+                }
+              },
+              {
+                "id": "immersiveengineering:earmuffs",
+                "components": {
+                  "immersiveengineering:color": {
+                    "a": 1,
+                    "r": 0.6901960784313725,
+                    "g": 0.1803921568627451,
+                    "b": 0.14901960784313725
+                  }
+                }
+              },
+              {
+                "id": "immersiveengineering:earmuffs",
+                "components": {
+                  "immersiveengineering:color": {
+                    "a": 1,
+                    "r": 0.3686274509803922,
+                    "g": 0.48627450980392156,
+                    "b": 0.08627450980392157
+                  }
+                }
+              },
+              {
+                "id": "immersiveengineering:earmuffs",
+                "components": {
+                  "immersiveengineering:color": {
+                    "a": 1,
+                    "r": 0.5137254901960784,
+                    "g": 0.32941176470588235,
+                    "b": 0.19607843137254902
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      ],
+      [
+        [
+          {
+            "id": "immersiveengineering:earmuffs",
+            "x": 24,
+            "y": 0
+          },
+          {
+            "x": 42,
+            "y": 0,
+            "stacks": [
+              {
+                "id": "minecraft:leather_helmet"
+              },
+              {
+                "id": "minecraft:iron_helmet"
+              }
+            ]
+          },
+          {
+            "x": 78,
+            "y": 0,
+            "stacks": [
+              {
+                "id": "minecraft:leather_helmet",
+                "components": {
+                  "immersiveengineering:contained_earmuff": {
+                    "id": "immersiveengineering:earmuffs"
+                  }
+                }
+              },
+              {
+                "id": "minecraft:iron_helmet",
+                "components": {
+                  "immersiveengineering:contained_earmuff": {
+                    "id": "immersiveengineering:earmuffs"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      ]
+    ]
+  }
+}

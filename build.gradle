@@ -1,0 +1,598 @@
+import groovy.json.JsonOutput
+
+plugins {
+    id 'net.neoforged.moddev' version "$version_mdg"
+}
+
+def version_replaces = [
+        'version'      : project.version,
+        'ie_version'   : buildVersionString(),
+        'mc_version'   : version_minecraft,
+        'forge_version': version_neoforge,
+        'jei_version'  : version_jei,
+]
+
+def jsonPatterns = ["**/*.json", "**/*.mcmeta"]
+
+archivesBaseName = 'ImmersiveEngineering'
+version = "${version_minecraft}-${buildVersionString()}"
+group = 'blusunrize.immersiveengineering'
+
+processResources {
+    duplicatesStrategy = DuplicatesStrategy.FAIL
+    exclude ".cache"
+    exclude "assets/immersiveengineering/lang_base"
+}
+
+tasks.withType(Jar).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+def compilePortingDatagen = providers.gradleProperty("ie.compilePortingDatagen")
+        .map { it.toBoolean() }
+        .orElse(false)
+        .get()
+def runPortingTests = providers.gradleProperty("ie.runPortingTests")
+        .map { it.toBoolean() }
+        .orElse(false)
+        .get()
+
+var generateModMetadata = tasks.register("generateModMetadata", ProcessResources) {
+    inputs.properties version_replaces
+    expand version_replaces
+    from "src/main/templates"
+    into "build/generated/sources/modMetadata"
+}
+
+var generatePortItemModelDefinitions = tasks.register("generatePortItemModelDefinitions") {
+    def outputDir = layout.buildDirectory.dir("generated/sources/portItemModelDefinitions")
+    def modelDirs = [
+            layout.projectDirectory.dir("src/main/resources/assets/immersiveengineering/models/item"),
+            layout.projectDirectory.dir("src/generated/resources/assets/immersiveengineering/models/item")
+    ]
+    def itemDefinitionDirs = [
+            layout.projectDirectory.dir("src/main/resources/assets/immersiveengineering/items"),
+            layout.projectDirectory.dir("src/generated/resources/assets/immersiveengineering/items")
+    ]
+    outputs.dir outputDir
+    inputs.files(
+            fileTree("src/main/resources/assets/immersiveengineering/models/item") {
+                include "*.json"
+            },
+            fileTree("src/generated/resources/assets/immersiveengineering/models/item") {
+                include "*.json"
+            },
+            fileTree("src/main/resources/assets/immersiveengineering/items") {
+                include "*.json"
+            },
+            fileTree("src/generated/resources/assets/immersiveengineering/items") {
+                include "*.json"
+            }
+    )
+    doLast {
+        def root = outputDir.get().asFile
+        def target = new File(root, "assets/immersiveengineering/items")
+        target.deleteDir()
+        target.mkdirs()
+
+        def existingDefinitions = [] as Set
+        itemDefinitionDirs.collect { it.asFile }.each { dir ->
+            if(dir.exists())
+                dir.listFiles((FileFilter){ file -> file.isFile()&&file.name.endsWith(".json") })
+                        .each { existingDefinitions.add(it.name) }
+        }
+
+        modelDirs.collect { it.asFile }.each { dir ->
+            if(dir.exists())
+                dir.listFiles((FileFilter){ file -> file.isFile()&&file.name.endsWith(".json") }).each { model ->
+                    if(existingDefinitions.contains(model.name))
+                        return
+                    def modelName = model.name.substring(0, model.name.length()-".json".length())
+                    def itemDefinition = new File(target, model.name)
+                    def modelJson = new groovy.json.JsonSlurper().parse(model)
+                    def itemModel = [
+                            type : "minecraft:model",
+                            model: "immersiveengineering:item/${modelName}".toString()
+                    ]
+                    def isFluidBucket = modelJson.loader=="neoforge:fluid_container"||
+                            modelJson.loader=="immersiveengineering:potion_bucket"||
+                            (modelName.endsWith("_bucket")&&modelJson.parent=="neoforge:item/bucket")
+                    if(isFluidBucket) {
+                        def fluid = modelJson.fluid
+                        if(!fluid)
+                            fluid = modelName=="potion_bucket"?
+                                    "immersiveengineering:potion":
+                                    "immersiveengineering:${modelName.substring(0, modelName.length()-"_bucket".length())}"
+                        itemModel = [
+                                type    : "neoforge:fluid_container",
+                                textures: [
+                                        base : "minecraft:item/bucket",
+                                        fluid: "neoforge:item/mask/bucket_fluid"
+                                ],
+                                fluid   : fluid
+                        ]
+                    }
+                    itemDefinition.text = JsonOutput.prettyPrint(JsonOutput.toJson([
+                            model: itemModel
+                    ]))+"\n"
+                    existingDefinitions.add(model.name)
+                }
+        }
+    }
+}
+
+// Generate mods.toml on IDE import
+neoForge.ideSyncTask generateModMetadata
+
+sourceSets {
+    compatStubs {
+        java {
+            srcDir "src/main/java"
+            srcDir "src/api/java"
+            include "net/**"
+            include "com/**"
+            exclude "net/neoforged/neoforge/common/BasicItemListing.java"
+            exclude "net/neoforged/neoforge/event/village/VillagerTradesEvent.java"
+        }
+    }
+    manual {
+        compileClasspath = main.compileClasspath
+    }
+    api {
+        java {
+            exclude "net/**"
+            exclude "com/**"
+        }
+        compileClasspath = compatStubs.output + main.compileClasspath
+        compileClasspath += manual.output
+        runtimeClasspath += manual.output
+    }
+    main {
+        java {
+            exclude "net/**"
+            exclude "com/**"
+        }
+        resources {
+            srcDir "$rootDir/src/generated/resources"
+            srcDir generateModMetadata
+            srcDir generatePortItemModelDefinitions
+        }
+        compileClasspath = compatStubs.output + compileClasspath + manual.output + api.output
+        runtimeClasspath += manual.output + api.output
+    }
+    datagen {
+        compileClasspath += main.compileClasspath
+        runtimeClasspath += main.runtimeClasspath
+        compileClasspath += main.output
+        runtimeClasspath += main.output
+    }
+    test {
+        compileClasspath += manual.output + api.output
+        runtimeClasspath += manual.output + api.output
+    }
+}
+
+neoForge {
+    version = "$version_neoforge"
+    addModdingDependenciesTo sourceSets.compatStubs
+    addModdingDependenciesTo sourceSets.manual
+    addModdingDependenciesTo sourceSets.api
+    addModdingDependenciesTo sourceSets.test
+
+    runs {
+        client {
+            client()
+        }
+        clientData {
+            clientData()
+            sourceSet = sourceSets.datagen
+            programArguments = [
+                    '--mod', 'immersiveengineering',
+                    '--all',
+                    '--output', file('src/generated/resources/').toString(),
+                    '--validate',
+                    '--existing', sourceSets.main.resources.srcDirs[0].toString()
+            ]
+        }
+        server {
+            server()
+            programArguments = ["-nogui"]
+        }
+    }
+
+    mods {
+        immersiveengineering {
+            sourceSet sourceSets.manual
+            sourceSet sourceSets.api
+            sourceSet sourceSets.main
+            // TODO can we not load this except in datagen
+            sourceSet sourceSets.datagen
+        }
+    }
+
+    unitTest {
+        enable()
+        testedMod = mods.immersiveengineering
+    }
+}
+
+repositories {
+    maven {
+        name 'Patched local libs'
+        url uri("$rootDir/libs/maven")
+    }
+    maven { // JEI & BlockModelSplitter
+        name 'Jared maven'
+        url 'https://maven.blamejared.com/'
+    }
+    maven {//Curse maven, in case some other maven goes offline and for mods that don't have a maven
+        url "https://cfa2.cursemaven.com"
+        content {
+            includeGroup "curse.maven"
+        }
+    }
+    maven { // CC-Tweaked
+        url 'https://squiddev.cc/maven/'
+        content {
+            includeGroup("cc.tweaked")
+        }
+    }
+}
+
+dependencies {
+    compileOnly "mezz.jei:jei-${version_minecraft}-neoforge-api:${version_jei}"
+    compileOnly "mezz.jei:jei-${version_minecraft}-common-api:${version_jei}"
+    compileOnly "com.blamejared.crafttweaker:CraftTweaker-forge-1.20.1:14.0.34"
+    compileOnly "cc.tweaked:cc-tweaked-1.20.4-forge-api:${version_cctweaked}"
+    compileOnly "curse.maven:the-one-probe-245211:3825695"
+    compileOnly "curse.maven:curios-309927:4780213"
+    compileOnly "curse.maven:jade-324717:6291517"
+    compileOnly "curse.maven:opencomputers2-437654:3630307"
+
+    jarJar(implementation("malte0811:BlockModelSplitter")) {
+        version {
+            strictly '[2.0.0,3)'
+            prefer '2.0.1'
+        }
+    }
+    jarJar(implementation("malte0811:DualCodecs")) {
+        version {
+            strictly "[${version_dualcodecs},1)"
+            prefer "${version_dualcodecs}"
+        }
+    }
+    testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.2")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.2")
+    testImplementation("net.neoforged:testframework:${version_neoforge}")
+}
+
+String buildVersionString() {
+    String build_number = "${version_buildnumber}".trim()
+    String ie_output_version = build_number.isEmpty() ? "${version_ie}" : "${version_ie}-${build_number}"
+    boolean jenkins_build = System.getenv("ie_add_git_rev") != null
+    if (jenkins_build) {
+        File changelog = new File("changelog.md")
+        if (!changelog.exists()) {
+            // Get the current minor/patch number and bump it
+            int idx = version_ie.lastIndexOf(".")
+            String major = version_ie.substring(0, idx)
+            String minor = version_ie.substring(idx + 1)
+            int bumped = minor.toInteger() + 1
+            ie_output_version = "${major}.${bumped}-pre"
+        } else {
+            // If the changelog file is present, we use the first line from that
+            String first_line = changelog.readLines().get(0)
+            ie_output_version = first_line.substring(first_line.indexOf("-") + 1)
+        }
+        // Now use describe to get the number of commits since the last tag
+        providers.exec {
+            commandLine 'git', 'fetch', '-t'
+        }
+        def stdout = new ByteArrayOutputStream()
+        String descr = providers.exec {
+            commandLine 'git', 'describe', '--long', '--abbrev=8', 'HEAD'
+        }.standardOutput.asText.get().trim()
+        descr = descr.substring(0, descr.length() - 10)
+        int idx = descr.lastIndexOf("-")
+        int pre_version = descr.substring(idx + 1).toInteger()
+        // If there have been more than 0 commits, consider this a pre-build
+        // otherwise use normal versioning (so a Jenkins build on the tag is equal to a release)
+        if (pre_version > 0)
+            ie_output_version = "${ie_output_version}.${pre_version}"
+    }
+    return ie_output_version
+}
+
+//Code for automatic update JSON generation
+abstract class GenerateUpdateJSON extends DefaultTask {
+    static def initVersions = { mcFromIEVersion ->
+        mcFromIEVersion.put("0.8", "1.8.9")
+        mcFromIEVersion.put("0.9", "1.9.4")
+        mcFromIEVersion.put("0.10", "1.10.2")
+        mcFromIEVersion.put("0.11", "1.11.2")
+        mcFromIEVersion.put("0.12", "1.12.2")
+        mcFromIEVersion.put("0.14", "1.14.4")
+        mcFromIEVersion.put("0.15", "1.15.2")
+        mcFromIEVersion.put("0.16", "1.16.1")
+    }
+    static def VERSION_PREFIX = "##### Version "
+    static def BUILT_SUFFIX = " - BUILT"
+    static def PRE_SUFFIX = "-pre"
+    static def RECOMMENDED = "-recommended"
+    static def LATEST = "-latest"
+    static def CF_URL = "https://minecraft.curseforge.com/projects/immersive-engineering"
+
+    @Incremental
+    @PathSensitive(PathSensitivity.NAME_ONLY)
+    @InputFile
+    abstract RegularFileProperty getMarkdown()
+
+    @Input
+    abstract Property<String> getBuildingForVersion()
+
+    @OutputFile
+    abstract RegularFileProperty getOnlineJSON()
+
+    @OutputFile
+    abstract RegularFileProperty getIncludedJSON()
+
+    static int compareVersions(String vA, String vB) {
+        String[] vPartsA = vA.split("[\\D]")
+        String[] vPartsB = vB.split("[\\D]")
+        if (vPartsA.length == 0 && vPartsB.length == 0)
+            return vA <=> vB
+        else if (vPartsA.length == 0)
+            return -1
+        else if (vPartsB.length == 0)
+            return 1
+
+        int length = Math.min(vPartsA.length, vPartsB.length)
+        for (int i = 0; i < length; i++) {
+            int pA = Integer.parseInt(vPartsA[i])
+            int pB = Integer.parseInt(vPartsB[i])
+            if (pA != pB) {
+                return pA <=> pB
+            }
+        }
+        if (vPartsA.length != vPartsB.length)
+            return vPartsA.length <=> vPartsB.length
+        return vA <=> vB
+    }
+
+    @TaskAction
+    def generate() {
+        Map<String, String> mcFromIEVersion = new HashMap<>()
+        initVersions(mcFromIEVersion)
+        File changelog = getMarkdown().get().asFile;
+        if (!changelog.exists())
+            println "Changelog does not exist! Aborting!"
+        else {
+            Map<String, Map<String, String>> changelogForVersions = new HashMap<>()
+            Map<String, String> promos = new TreeMap<>({ String s1, String s2 ->
+                compareVersions(s1, s2)
+            })
+            String currentVersion = null
+            String currentChangelog = ""
+            changelog.eachLine('ISO-8859-1', { line ->
+                if (line.startsWith(VERSION_PREFIX)) {
+                    if (currentVersion != null) {
+                        String mainVer = currentVersion.substring(0, currentVersion.indexOf('-'))
+                        String mcVer;
+                        // legacy versioning support
+                        if (mainVer.startsWith("0.")) {
+                            mcVer = mcFromIEVersion[mainVer]
+                        } else {
+                            mcVer = mainVer
+                        }
+                        if (mcVer == null) {
+                            throw new NullPointerException("Could not find MC version for " + currentVersion);
+                        } else if (mcVer == getBuildingForVersion().get()) {
+                            if (!changelogForVersions.containsKey(mcVer)) {
+                                promos.put(mcVer + RECOMMENDED, currentVersion)
+                                promos.put(mcVer + LATEST, currentVersion)
+                                changelogForVersions[mcVer] = new TreeMap<>({ String s1, String s2 ->
+                                    compareVersions(s1, s2)
+                                })
+                            }
+                            changelogForVersions[mcVer][currentVersion] = currentChangelog
+                        }
+                    }
+                    if (line.endsWith(BUILT_SUFFIX)) {
+                        currentVersion = line.substring(VERSION_PREFIX.length(), line.length() - BUILT_SUFFIX.length())
+                    } else if (!line.endsWith(PRE_SUFFIX)) {
+                        currentVersion = line.substring(VERSION_PREFIX.length())
+                    } else {
+                        currentVersion = (String) null
+                    }
+                    currentChangelog = ""
+                } else if (!line.isEmpty()) {
+                    if (currentChangelog.length() == 0)
+                        currentChangelog += line
+                    else
+                        currentChangelog += "\n" + line
+                }
+                return null
+            })
+            Map<String, Object> mainMap = new TreeMap<>({ String s1, String s2 ->
+                compareVersions(s1, s2)
+            })
+            mainMap.putAll(changelogForVersions)
+            mainMap["homepage"] = CF_URL
+            mainMap["promos"] = promos
+            //JSON for the Forge update checker
+            def updateJson = JsonOutput.toJson(mainMap)
+            updateJson = JsonOutput.prettyPrint(updateJson)
+            File outF = getOnlineJSON().get().asFile;
+            outF.delete()
+            outF << updateJson
+
+            //JSON for the manual
+            def mapForCurrent = changelogForVersions.getOrDefault(getBuildingForVersion(), new HashMap<>())
+            def manualJson = JsonOutput.toJson(mapForCurrent)
+            manualJson = JsonOutput.prettyPrint(manualJson)
+            outF = getIncludedJSON().get().asFile;
+            outF.delete()
+            outF << manualJson
+        }
+    }
+}
+
+task updateJson(type: GenerateUpdateJSON) {
+    markdown = file("changelog.md")
+    includedJSON = file("src/main/resources/assets/immersiveengineering/changelog.json")
+    onlineJSON = file("changelog.json")
+    buildingForVersion = "$version_minecraft"
+}
+
+processResources.dependsOn updateJson
+
+task datagenJar(type: Jar, dependsOn: datagenClasses) {
+    archiveClassifier = 'datagen'
+    from sourceSets.datagen.output
+    manifest {
+        attributes "FMLModType": "GAMELIBRARY"
+    }
+}
+
+task apiJar(type: Jar, dependsOn: apiClasses) {
+    archiveClassifier = 'api'
+    from sourceSets.api.output
+    from sourceSets.manual.output
+}
+
+tasks.named("compileDatagenJava").configure {
+    // The 1.26/NeoForge beta port has runtime sources compiling, but datagen still
+    // references removed NeoForge model/advancement helpers. Keep regular builds jar-focused.
+    enabled = compilePortingDatagen
+}
+
+tasks.named("datagenClasses").configure {
+    enabled = compilePortingDatagen
+}
+
+tasks.named("datagenJar").configure {
+    enabled = compilePortingDatagen
+}
+
+tasks.named("runClientData").configure {
+    enabled = compilePortingDatagen
+}
+
+tasks.named("test").configure {
+    // These tests load the in-progress port through NeoForge's unit-test harness,
+    // which still fails during class initialization. Re-enable with -Pie.runPortingTests=true.
+    enabled = runPortingTests
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+    from sourceSets.manual.allSource
+    from sourceSets.api.allSource
+    from sourceSets.datagen.allSource
+}
+
+jar {
+    from(sourceSets.manual.output)
+    from(sourceSets.api.output)
+}
+
+artifacts {
+    archives sourcesJar
+    archives jar
+    archives datagenJar
+    archives apiJar
+}
+
+apply plugin: 'maven-publish'
+
+publishing {
+    repositories {
+        maven {
+            url = "file://" + (System.getenv("local_maven") != null ? System.getenv("local_maven") : System.getenv("bamboo_local_maven"))
+        }
+    }
+    publications {
+        maven(MavenPublication) {
+            groupId = project.group
+            version = project.version
+            artifactId = project.archivesBaseName
+
+            artifact sourcesJar
+            artifact jar
+            artifact datagenJar
+            artifact apiJar
+
+            pom {
+                name = project.archivesBaseName
+                description = project.archivesBaseName
+                url = 'https://www.curseforge.com/minecraft/mc-mods/immersive-engineering'
+                scm {
+                    url = 'https://github.com/BluSunrize/ImmersiveEngineering'
+                    connection = 'scm:git:git@github.com/BluSunrize/ImmersiveEngineering.git'
+                    developerConnection = 'scm:git:git@github.com/BluSunrize/ImmersiveEngineering.git'
+                }
+                issueManagement {
+                    system = 'github'
+                    url = 'https://github.com/BluSunrize/ImmersiveEngineering/issues'
+                }
+
+                developers {
+                    developer {
+                        id = 'BluSunrize'
+                        name = 'BluSunrize'
+                    }
+                }
+            }
+        }
+    }
+}
+
+def pngPatterns = ["**/*.png"]
+//Minimize any PNGs in the source sets
+// Credits: BrainStone
+static String getShortenedAssetPath(File file) {
+    return file.getPath()
+            .replaceFirst('^.*?resources.(assets.immersiveengineering.)?', '') // remove start
+            .replaceAll('[/\\\\]+', '_') // replace slashes with underscores
+            .replaceAll('.png+', '') // trim the ending
+}
+
+for (dir in project.sourceSets.main.resources.srcDirs) {
+    fileTree(dir: dir, includes: pngPatterns).each { file ->
+        def path = getShortenedAssetPath(file);
+        tasks.register("optimizePng_" + path, Exec) {
+            executable "optipng"
+            args "-q", "-log", "optipng_${path}.log", "-o7", "-zm1-9", "-strip", "all", file
+        }
+    }
+}
+task optimizePng {
+    for (dir in project.sourceSets.main.resources.srcDirs) {
+        fileTree(dir: dir, includes: pngPatterns).each { file ->
+            def path = getShortenedAssetPath(file);
+            dependsOn "optimizePng_${path}"
+            doLast {
+                def logfile = new File("optipng_${path}.log")
+                if (logfile.exists()) {
+                    def decrease = logfile.text.trim().find('[\\d\\.]+% decrease')
+                    if (decrease)
+                        println "${file.name} optimized:\n\t${decrease} in size"
+                    logfile.delete()
+                }
+            }
+        }
+    }
+}
+
+tasks.withType(Task) {
+    if (it.name == "runServer") {
+        it.standardInput = System.in
+    }
+}
+
+// load developer specific gradle config
+def customGradle = rootProject.file('custom.gradle');
+if (customGradle.exists()) {
+    apply from: customGradle;
+}

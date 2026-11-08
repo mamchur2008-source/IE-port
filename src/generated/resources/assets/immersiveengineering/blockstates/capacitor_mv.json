@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "": {
+      "type": "immersiveengineering:conf_sides",
+      "model": "immersiveengineering:block/metal_device/capacitor_mv"
+    }
+  }
+}

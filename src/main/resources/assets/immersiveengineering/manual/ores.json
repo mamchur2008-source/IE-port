@@ -1,0 +1,87 @@
+{
+  "alu": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:ore_aluminum"
+      },
+      {
+        "id": "immersiveengineering:deepslate_ore_aluminum"
+      },
+      {
+        "id": "immersiveengineering:raw_aluminum"
+      },
+      {
+        "id": "immersiveengineering:ingot_aluminum"
+      }
+    ]
+  },
+  "lead": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:ore_lead"
+      },
+      {
+        "id": "immersiveengineering:deepslate_ore_lead"
+      },
+      {
+        "id": "immersiveengineering:raw_lead"
+      },
+      {
+        "id": "immersiveengineering:ingot_lead"
+      }
+    ]
+  },
+  "silver": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:ore_silver"
+      },
+      {
+        "id": "immersiveengineering:deepslate_ore_silver"
+      },
+      {
+        "id": "immersiveengineering:raw_silver"
+      },
+      {
+        "id": "immersiveengineering:ingot_silver"
+      }
+    ]
+  },
+  "nickel": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:ore_nickel"
+      },
+      {
+        "id": "immersiveengineering:deepslate_ore_nickel"
+      },
+      {
+        "id": "immersiveengineering:raw_nickel"
+      },
+      {
+        "id": "immersiveengineering:ingot_nickel"
+      }
+    ]
+  },
+  "uranium": {
+    "type": "item_display",
+    "items": [
+      {
+        "id": "immersiveengineering:ore_uranium"
+      },
+      {
+        "id": "immersiveengineering:deepslate_ore_uranium"
+      },
+      {
+        "id": "immersiveengineering:raw_uranium"
+      },
+      {
+        "id": "immersiveengineering:ingot_uranium"
+      }
+    ]
+  }
+}

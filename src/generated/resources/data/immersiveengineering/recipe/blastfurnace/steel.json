@@ -1,0 +1,7 @@
+{
+  "type": "immersiveengineering:blast_furnace",
+  "input": "#c:ingots/iron",
+  "result": "#c:ingots/steel",
+  "slag": "#c:slag",
+  "time": 1200
+}

@@ -1,0 +1,420 @@
+{
+  "diesel_generator": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:diesel_generator"
+    ],
+    "subtitle": "subtitle.immersiveengineering.dieselGenerator"
+  },
+  "crusher": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:crusher"
+    ],
+    "subtitle": "subtitle.immersiveengineering.crusher"
+  },
+  "metal_press_piston": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:metal_press_piston"
+    ],
+    "subtitle": "subtitle.immersiveengineering.metalPressPiston"
+  },
+  "metal_press_smash": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:metal_press_smash"
+    ],
+    "subtitle": "subtitle.immersiveengineering.metalPressSmash"
+  },
+  "birthday_party": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:birthday_party"
+    ],
+    "subtitle": "subtitle.immersiveengineering.birthdayParty"
+  },
+  "revolver_fire": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:revolver_fire"
+    ],
+    "subtitle": "subtitle.immersiveengineering.revolverFire"
+  },
+  "revolver_fire_thump": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:revolver_fire_thump"
+    ],
+    "subtitle": "subtitle.immersiveengineering.revolverFire"
+  },
+  "revolver_reload": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:revolver_reload"
+    ],
+    "subtitle": "subtitle.immersiveengineering.revolverReload"
+  },
+  "spray": {
+    "category": "player",
+    "sounds": [
+      "immersiveengineering:spray"
+    ],
+    "subtitle": "subtitle.immersiveengineering.spray"
+  },
+  "spray_fire": {
+    "category": "player",
+    "sounds": [
+      "immersiveengineering:spray_fire"
+    ],
+    "subtitle": "subtitle.immersiveengineering.sprayFire"
+  },
+  "charge_fast": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:charge_fast"
+    ],
+    "subtitle": "subtitle.immersiveengineering.chargeFast"
+  },
+  "charge_slow": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:charge_slow"
+    ],
+    "subtitle": "subtitle.immersiveengineering.chargeSlow"
+  },
+  "spark": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:spark0",
+      "immersiveengineering:spark1",
+      "immersiveengineering:spark2"
+    ],
+    "subtitle": "subtitle.immersiveengineering.spark"
+  },
+  "railgun_fire": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:railgun_fire"
+    ],
+    "subtitle": "subtitle.immersiveengineering.railgunFire"
+  },
+  "skyhook": {
+    "category": "neutral",
+    "sounds": [
+      "immersiveengineering:skyhook"
+    ],
+    "subtitle": "subtitle.immersiveengineering.skyhook"
+  },
+  "drill_idle": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:drill_idle",
+        "attenuation_distance": 22
+	  }
+    ],
+    "subtitle": "subtitle.immersiveengineering.drill_motor"
+  },
+  "drill_busy": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:drill_busy",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.drill_motor"
+  },
+  "drill_fade": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:drill_fade",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.drill_motor"
+  },
+  "drill_attack": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:drill_attack",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.drill_attack"
+  },
+  "drill_harvest": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "immersiveengineering:drill_harvest",
+        "attenuation_distance": 28
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.drill_harvest"
+  },
+  "buzzsaw_idle": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:buzzsaw_idle",
+        "attenuation_distance": 22
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.buzzsaw_motor"
+  },
+  "buzzsaw_busy": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:buzzsaw_busy",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.buzzsaw_motor"
+  },
+  "buzzsaw_fade": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:buzzsaw_fade",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.buzzsaw_motor"
+  },
+  "buzzsaw_attack": {
+    "category": "neutral",
+    "sounds": [
+      {
+        "name": "immersiveengineering:buzzsaw_attack",
+        "attenuation_distance": 24
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.buzzsaw_attack"
+  },
+  "buzzsaw_harvest_saw": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "immersiveengineering:buzzsaw_harvest_saw",
+        "attenuation_distance": 28
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.buzzsaw_harvest_sawing"
+  },
+  "buzzsaw_harvest_grind": {
+    "category": "block",
+    "sounds": [
+      {
+        "name": "immersiveengineering:buzzsaw_harvest_grind",
+        "attenuation_distance": 28
+      }
+    ],
+    "subtitle": "subtitle.immersiveengineering.buzzsaw_harvest_grinding"
+  },
+  "tesla": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:tesla"
+    ],
+    "subtitle": "subtitle.immersiveengineering.tesla"
+  },
+  "dire_switch": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:dire_switch"
+    ],
+    "subtitle": "subtitle.immersiveengineering.direSwitch"
+  },
+  "chute": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:chute0",
+      "immersiveengineering:chute1",
+      "immersiveengineering:chute2",
+      "immersiveengineering:chute3"
+    ],
+    "subtitle": "subtitle.immersiveengineering.chute"
+  },
+  "glider": {
+    "category": "player",
+    "sounds": [
+      "immersiveengineering:glider_speed0",
+      "immersiveengineering:glider_speed1",
+      "immersiveengineering:glider_speed2"
+    ],
+    "subtitle": "subtitle.immersiveengineering.glider"
+  },
+  "assembler": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:assembler"
+    ],
+    "subtitle": "subtitle.immersiveengineering.assembler"
+  },
+  "refinery": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:refinery"
+    ],
+    "subtitle": "subtitle.immersiveengineering.refinery"
+  },
+  "bottling": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:bottling"
+    ],
+    "subtitle": "subtitle.immersiveengineering.bottling"
+  },
+  "saw_startup": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:saw_startup"
+    ],
+    "subtitle": "subtitle.immersiveengineering.saw_startup"
+  },
+  "saw_empty": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:saw_empty"
+    ],
+    "subtitle": "subtitle.immersiveengineering.saw_empty"
+  },
+  "saw_full": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:saw_full"
+    ],
+    "subtitle": "subtitle.immersiveengineering.saw_full"
+  },
+  "saw_shutdown": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:saw_shutdown"
+    ],
+    "subtitle": "subtitle.immersiveengineering.saw_shutdown"
+  },
+  "mixer": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:mixer"
+    ],
+    "subtitle": "subtitle.immersiveengineering.mixer"
+  },
+  "fermenter": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:fermenter"
+    ],
+    "subtitle": "subtitle.immersiveengineering.fermenter"
+  },
+  "preheater": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:preheater"
+    ],
+    "subtitle": "subtitle.immersiveengineering.preheater"
+  },
+  "arc_furnace": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:arc_furnace"
+    ],
+    "subtitle": "subtitle.immersiveengineering.arc_furnace"
+  },
+  "ore_conveyor": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:ore_conveyor"
+    ],
+    "subtitle": "subtitle.immersiveengineering.ore_conveyor"
+  },
+  "ore_dump": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:ore_dump"
+    ],
+    "subtitle": "subtitle.immersiveengineering.ore_dump"
+  },
+  "process_1": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:process_1"
+    ],
+    "subtitle": "subtitle.immersiveengineering.process_1"
+  },
+  "process_1_lift": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:process_1_lift"
+    ],
+    "subtitle": "subtitle.immersiveengineering.process_1_lift"
+  },
+  "process_2": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:process_2"
+    ],
+    "subtitle": "subtitle.immersiveengineering.process_2"
+  },
+  "process_2_lift": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:process_2_lift"
+    ],
+    "subtitle": "subtitle.immersiveengineering.process_2_lift"
+  },
+  "mill_creaking": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:mill_creaking"
+    ],
+    "subtitle": "subtitle.immersiveengineering.mill_creaking"
+  },
+  "electromagnet": {
+    "category": "player",
+    "sounds": [
+      "immersiveengineering:electromagnet"
+    ],
+    "subtitle": "subtitle.immersiveengineering.electromagnet"
+  },
+  "siren": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:siren"
+    ],
+    "subtitle": "subtitle.immersiveengineering.siren"
+  },
+  "klaxon": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:klaxon"
+    ],
+    "subtitle": "subtitle.immersiveengineering.klaxon"
+  },
+  "buzzer": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:buzzer"
+    ],
+    "subtitle": "subtitle.immersiveengineering.buzzer"
+  },
+  "note_block_resonanz": {
+    "category": "block",
+    "sounds": [
+      "immersiveengineering:note_block_resonanz"
+    ],
+    "subtitle": "subtitles.block.note_block.note"
+  },
+  "alert": {
+    "category": "player",
+    "sounds": [
+      "immersiveengineering:alert"
+    ],
+    "subtitle": "subtitles.immersiveengineering.alert"
+  }
+}

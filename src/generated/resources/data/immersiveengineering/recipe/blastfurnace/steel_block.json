@@ -1,0 +1,10 @@
+{
+  "type": "immersiveengineering:blast_furnace",
+  "input": "#c:storage_blocks/iron",
+  "result": "#c:storage_blocks/steel",
+  "slag": {
+    "basePredicate": "#c:slag",
+    "count": 9
+  },
+  "time": 10800
+}
